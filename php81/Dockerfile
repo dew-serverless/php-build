@@ -134,16 +134,79 @@ RUN set -xe; \
     && make install
 
 
+# Build libzip
+# https://libzip.org/
+# Needed by: PHP --with-zip
+
+env VERSION_LIBZIP=1.8.0
+env LIBZIP_BUILD_DIR=${BUILD_DIR}/libzip
+
+RUN set -xe; \
+    mkdir ${LIBZIP_BUILD_DIR} \
+    && curl -s -L https://libzip.org/download/libzip-${VERSION_LIBZIP}.tar.gz \
+    | tar xzC ${LIBZIP_BUILD_DIR} --strip 1
+
+WORKDIR ${LIBZIP_BUILD_DIR}
+
+RUN set -xe; \
+    mkdir build \
+    && cd build \
+    && cmake -DCMAKE_INSTALL_PREFIX=${INSTALL_DIR} .. \
+    && make -j $(nproc) \
+    && make install
+
+
+# Build libsodium
+# https://doc.libsodium.org/
+# Needed by: PHP --with-sodium
+
+ENV VERSION_LIBSODIUM=1.0.18
+ENV LIBSODIUM_BUILD_DIR=${BUILD_DIR}/libsodium
+
+RUN set -xe; \
+    mkdir ${LIBSODIUM_BUILD_DIR} \
+    && curl -s -L https://download.libsodium.org/libsodium/releases/libsodium-${VERSION_LIBSODIUM}-stable.tar.gz \
+    | tar xzC ${LIBSODIUM_BUILD_DIR} --strip 1
+
+WORKDIR ${LIBSODIUM_BUILD_DIR}
+
+RUN set -xe; \
+    ./configure \
+        --prefix=${INSTALL_DIR} \
+    && make -j $(nproc) \
+    && make install
+
+
+# Build zlib
+# https://www.zlib.net
+# Needed by: PHP --with-zlib
+
+ENV VERSION_ZLIB=1.2.12
+ENV ZLIB_BUILD_DIR=${INSTALL_DIR}/zlib
+
+RUN set -xe; \
+    mkdir ${ZLIB_BUILD_DIR} \
+    && curl -s -L https://www.zlib.net/zlib-${VERSION_ZLIB}.tar.gz \
+    | tar xzC ${ZLIB_BUILD_DIR} --strip 1
+
+WORKDIR ${ZLIB_BUILD_DIR}
+
+RUN set -xe; \
+    ./configure \
+        --prefix=${INSTALL_DIR} \
+    && make -j $(nproc) \
+    && make install
+
+
 # Build PHP
 # https://www.php.net
 
 ENV VERSION_PHP=8.1.5
 ENV PHP_BUILD_DIR=${BUILD_DIR}/php
 
-RUN mkdir ${PHP_BUILD_DIR}
-
 RUN set -xe; \
-    curl -s -L https://www.php.net/distributions/php-${VERSION_PHP}.tar.gz \
+    mkdir ${PHP_BUILD_DIR} \
+    && curl -s -L https://www.php.net/distributions/php-${VERSION_PHP}.tar.gz \
     | tar xzC ${PHP_BUILD_DIR} --strip 1
 
 WORKDIR ${PHP_BUILD_DIR}
@@ -153,10 +216,14 @@ RUN set -xe; \
     && ./configure \
         --prefix=${INSTALL_DIR} \
         --enable-bcmath \
+        --enable-exif \
         --enable-mbstring \
         --with-curl \
         --with-openssl \
         --with-pdo-mysql \
         --with-readline=${INSTALL_DIR} \
+        --with-sodium \
+        --with-zip \
+        --with-zlib \
     && make -j $(nproc) \
     && make install
