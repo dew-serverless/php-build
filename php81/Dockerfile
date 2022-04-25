@@ -6,7 +6,8 @@ FROM aliyunfc/fc-runtime:java8-stretch-base
 
 RUN apt-get update
 
-RUN apt-get install -y autoconf libtool libsqlite3-dev tclsh
+RUN apt-get install -y autoconf libtool cmake libsqlite3-dev tclsh \
+    libreadline-dev
 
 WORKDIR /tmp
 
@@ -32,9 +33,9 @@ ENV LIBXML2_BUILD_DIR=${BUILD_DIR}/libxml2
 RUN mkdir ${LIBXML2_BUILD_DIR}
 
 RUN curl -s -L https://gitlab.gnome.org/GNOME/libxml2/-/archive/v${VERSION_LIBXML2}/libxml2-v${VERSION_LIBXML2}.tar.gz \
-    | tar xzC ${LIBXML_BUILD_DIR} --strip 1
+    | tar xzC ${LIBXML2_BUILD_DIR} --strip 1
 
-WORKDIR ${LIBXML_BUILD_DIR}
+WORKDIR ${LIBXML2_BUILD_DIR}
 
 RUN set -xe; \
     CFLAGS='-O2 -fno-semantic-interposition' \
@@ -129,7 +130,6 @@ WORKDIR ${READLINE_BUILD_DIR}
 RUN set -xe; \
     ./configure \
         --prefix ${INSTALL_DIR} \
-        --disable-shared \
     && make -j $(nproc) \
     && make install
 
