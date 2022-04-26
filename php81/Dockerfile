@@ -29,7 +29,7 @@ ENV PKG_CONFIG_PATH=${INSTALL_DIR}/lib64/pkgconfig:${INSTALL_DIR}/lib/pkgconfig 
 # https://www.openssl.org
 
 ENV VERSION_OPENSSL=3.0.2
-ENV OPENSSL_BUILD_DIR=${INSTALL_DIR}/openssl
+ENV OPENSSL_BUILD_DIR=${BUILD_DIR}/openssl
 ENV CA_BUNDLE=${INSTALL_DIR}/ssl/cert.pem
 ENV CA_BUNDLE_SOURCE=https://curl.se/ca/cacert.pem
 
