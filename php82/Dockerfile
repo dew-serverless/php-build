@@ -9,9 +9,52 @@ ENV BUILD_DIR=/tmp/build
 ENV INSTALL_DIR=/opt/propeller
 
 # Configure environment variables
-ENV PKG_CONFIG_PATH=${INSTALL_DIR}/lib/pkgconfig \
-    LD_LIBRARY_PATH=${INSTALL_DIR}/lib \
+ENV PKG_CONFIG_PATH=${INSTALL_DIR}/lib64/pkgconfig:${INSTALL_DIR}/lib/pkgconfig \
+    LD_LIBRARY_PATH=${INSTALL_DIR}/lib64:${INSTALL_DIR}/lib \
     PATH=${INSTALL_DIR}/bin:$PATH
+
+
+#
+# Build OpenSSL
+#
+# Needed by:
+#  - libcurl
+#
+
+ENV OPENSSL_VERSION=3.0.8
+ENV OPENSSL_BUILD_DIR=${BUILD_DIR}/openssl
+
+WORKDIR ${OPENSSL_BUILD_DIR}/
+
+RUN set -xe; \
+    curl -sL https://github.com/openssl/openssl/releases/download/openssl-${OPENSSL_VERSION}/openssl-${OPENSSL_VERSION}.tar.gz \
+        | tar xzC $OPENSSL_BUILD_DIR --strip-components 1 \
+    && ./Configure \
+        --prefix=$INSTALL_DIR \
+    && make -j $(nproc) \
+    && make install
+
+
+#
+# Build libcurl
+#
+# Needed by:
+#   - php
+#
+
+ENV LIBCURL_VERSION=7.88.1
+ENV LIBCURL_BUILD_DIR=${BUILD_DIR}/libcurl
+
+WORKDIR ${LIBCURL_BUILD_DIR}/
+
+RUN set -xe; \
+    curl -sL https://curl.se/download/curl-${LIBCURL_VERSION}.tar.gz \
+        | tar xzC $LIBCURL_BUILD_DIR --strip-components 1 \
+    && ./configure \
+        --prefix=$INSTALL_DIR \
+        --with-openssl \
+    && make -j $(nproc) \
+    && make install
 
 
 #
