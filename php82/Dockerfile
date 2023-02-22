@@ -13,6 +13,47 @@ ENV PKG_CONFIG_PATH=${INSTALL_DIR}/lib64/pkgconfig:${INSTALL_DIR}/lib/pkgconfig 
     LD_LIBRARY_PATH=${INSTALL_DIR}/lib64:${INSTALL_DIR}/lib \
     PATH=${INSTALL_DIR}/bin:$PATH
 
+#
+# Build zlib
+#
+# Needed by:
+#   - php (--with-zlib)
+#
+
+ENV ZLIB_VERSION=1.2.13
+ENV ZLIB_BUILD_DIR=${BUILD_DIR}/zlib
+
+WORKDIR ${ZLIB_BUILD_DIR}/
+
+RUN set -xe; \
+    curl -sL https://www.zlib.net/zlib-${ZLIB_VERSION}.tar.gz \
+        | tar xzC $ZLIB_BUILD_DIR --strip-components 1 \
+    && ./configure --prefix=$INSTALL_DIR \
+    && make -j $(nproc) \
+    && make install
+
+
+#
+# Build PostgreSQL
+#
+# Needed by:
+#   - php (--with-pdo-pgsql)
+#
+
+ENV PGSQL_VERSION=15.2
+ENV PGSQL_BUILD_DIR=${BUILD_DIR}/pgsql
+
+WORKDIR ${PGSQL_BUILD_DIR}/
+
+RUN set -xe; \
+    curl -sL https://ftp.postgresql.org/pub/source/v${PGSQL_VERSION}/postgresql-${PGSQL_VERSION}.tar.gz \
+        | tar xzC $PGSQL_BUILD_DIR --strip-components 1 \
+    && ./configure \
+        --prefix=$INSTALL_DIR \
+        --without-readline \
+    && make -j $(nproc) \
+    && make install
+
 
 #
 # Build OpenSSL
@@ -39,7 +80,7 @@ RUN set -xe; \
 # Build libcurl
 #
 # Needed by:
-#   - php
+#   - php (--with-curl)
 #
 
 ENV LIBCURL_VERSION=7.88.1
@@ -63,7 +104,7 @@ RUN set -xe; \
 # regular expression library
 #
 # Needed by:
-#  - php --enable-mbstring
+#  - php (--enable-mbstring)
 #
 
 ENV ONIG_VERSION=6.9.8
@@ -110,12 +151,28 @@ RUN set -xe; \
     curl -sL https://www.php.net/distributions/php-${PHP_VERSION}.tar.gz \
         | tar xzC $PHP_BUILD_DIR --strip-components 1 \
     && ./configure \
-        --prefix=${INSTALL_DIR} \
+        --prefix=$INSTALL_DIR \
         --enable-bcmath \
+        --enable-fpm \
         --enable-mbstring \
-        --with-curl=${INSTALL_DIR} \
+        --with-curl=$INSTALL_DIR \
+        --with-openssl \
+        --with-pdo-mysql \
+        --with-pdo-pgsql=$INSTALL_DIR \
+        --with-zlib \
     && make -j $(nproc) \
     && make install
+
+
+#
+# Build composer
+#
+
+RUN set -xe; \
+    curl -sL https://getcomposer.org/installer \
+        | php -- \
+            --install-dir=${INSTALL_DIR}/bin \
+            --filename=composer
 
 
 # Change directory to where the source code placed
