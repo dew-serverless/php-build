@@ -150,16 +150,18 @@ WORKDIR $PHP_BUILD_DIR
 RUN set -xe; \
     curl -sL https://www.php.net/distributions/php-${PHP_VERSION}.tar.gz \
         | tar xzC $PHP_BUILD_DIR --strip-components 1 \
-    && ./configure \
-        --prefix=$INSTALL_DIR \
-        --enable-bcmath \
-        --enable-fpm \
-        --enable-mbstring \
-        --with-curl=$INSTALL_DIR \
-        --with-openssl \
-        --with-pdo-mysql \
-        --with-pdo-pgsql=$INSTALL_DIR \
-        --with-zlib \
+    && CFLAGS="-march=x86-64 -O3 -pipe -fpie" \
+       LDFLAGS="-Wl,-pie" \
+       ./configure \
+           --prefix=$INSTALL_DIR \
+           --enable-bcmath \
+           --enable-fpm \
+           --enable-mbstring \
+           --with-curl=$INSTALL_DIR \
+           --with-openssl \
+           --with-pdo-mysql \
+           --with-pdo-pgsql=$INSTALL_DIR \
+           --with-zlib \
     && make -j $(nproc) \
     && make install
 
