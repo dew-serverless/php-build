@@ -41,8 +41,8 @@ WORKDIR ${ZLIB_BUILD_DIR}/
 
 RUN set -xe; \
     curl -sL https://www.zlib.net/zlib-${ZLIB_VERSION}.tar.gz \
-        | tar xzC $ZLIB_BUILD_DIR --strip-components 1 \
-    && ./configure --prefix=$INSTALL_DIR \
+        | tar xzC ${ZLIB_BUILD_DIR} --strip-components 1 \
+    && ./configure --prefix=${INSTALL_DIR} \
     && make -j $(nproc) \
     && make install
 
@@ -61,7 +61,7 @@ WORKDIR ${PGSQL_BUILD_DIR}/
 
 RUN set -xe; \
     curl -sL https://ftp.postgresql.org/pub/source/v${PGSQL_VERSION}/postgresql-${PGSQL_VERSION}.tar.gz \
-        | tar xzC $PGSQL_BUILD_DIR --strip-components 1 \
+        | tar xzC ${PGSQL_BUILD_DIR} --strip-components 1 \
     && CFLAGS="-I${INSTALL_DIR}/include" \
        LDFLAGS="-L${INSTALL_DIR}/lib" \
        ./configure \
@@ -85,9 +85,9 @@ WORKDIR ${OPENSSL_BUILD_DIR}/
 
 RUN set -xe; \
     curl -sL https://github.com/openssl/openssl/releases/download/openssl-${OPENSSL_VERSION}/openssl-${OPENSSL_VERSION}.tar.gz \
-        | tar xzC $OPENSSL_BUILD_DIR --strip-components 1 \
+        | tar xzC ${OPENSSL_BUILD_DIR} --strip-components 1 \
     && ./Configure \
-        --prefix=$INSTALL_DIR \
+        --prefix=${INSTALL_DIR} \
     && make -j $(nproc) \
     && make install
 
@@ -106,9 +106,9 @@ WORKDIR ${LIBCURL_BUILD_DIR}/
 
 RUN set -xe; \
     curl -sL https://curl.se/download/curl-${LIBCURL_VERSION}.tar.gz \
-        | tar xzC $LIBCURL_BUILD_DIR --strip-components 1 \
+        | tar xzC ${LIBCURL_BUILD_DIR} --strip-components 1 \
     && ./configure \
-        --prefix=$INSTALL_DIR \
+        --prefix=${INSTALL_DIR} \
         --with-openssl \
     && make -j $(nproc) \
     && make install
@@ -179,24 +179,24 @@ RUN set -xe; \
 #
 
 ENV PHP_VERSION=8.2.3
-ENV PHP_BUILD_DIR=$BUILD_DIR/php
+ENV PHP_BUILD_DIR=${BUILD_DIR}/php
 
-WORKDIR $PHP_BUILD_DIR
+WORKDIR ${PHP_BUILD_DIR}/
 
 RUN set -xe; \
     curl -sL https://www.php.net/distributions/php-${PHP_VERSION}.tar.gz \
-        | tar xzC $PHP_BUILD_DIR --strip-components 1 \
+        | tar xzC ${PHP_BUILD_DIR} --strip-components 1 \
     && CFLAGS="-march=x86-64 -O3 -pipe -fpie" \
        LDFLAGS="-Wl,-pie" \
        ./configure \
-           --prefix=$INSTALL_DIR \
+           --prefix=${INSTALL_DIR} \
            --enable-bcmath \
            --enable-fpm \
            --enable-mbstring \
-           --with-curl=$INSTALL_DIR \
+           --with-curl=${INSTALL_DIR} \
            --with-openssl \
            --with-pdo-mysql \
-           --with-pdo-pgsql=$INSTALL_DIR \
+           --with-pdo-pgsql=${INSTALL_DIR} \
            --with-zlib \
     && make -j $(nproc) \
     && make install
