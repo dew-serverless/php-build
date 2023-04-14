@@ -1,6 +1,7 @@
-# Build upon Function Compute custom runtime
+# Build upon Debian 9 (stretch)
+# which is the host OS of Function Compute runtime environment.
 # See: https://help.aliyun.com/document_detail/132044.html
-FROM aliyunfc/runtime-custom:latest
+FROM debian:stretch-slim
 
 # Define a directory for building
 ENV BUILD_DIR=/tmp/build
@@ -12,6 +13,19 @@ ENV INSTALL_DIR=/opt/dew
 ENV PKG_CONFIG_PATH=${INSTALL_DIR}/lib64/pkgconfig:${INSTALL_DIR}/lib/pkgconfig \
     LD_LIBRARY_PATH=${INSTALL_DIR}/lib64:${INSTALL_DIR}/lib \
     PATH=${INSTALL_DIR}/bin:$PATH
+
+# Install dependencies
+RUN apt-get update && apt-get install -y \
+        autoconf \
+        curl \
+        g++ \
+        gcc \
+        make \
+        perl \
+        pkg-config \
+        tclsh \
+        zip \
+    && rm -rf /var/lib/apt/lists/*
 
 #
 # Build zlib
@@ -48,9 +62,11 @@ WORKDIR ${PGSQL_BUILD_DIR}/
 RUN set -xe; \
     curl -sL https://ftp.postgresql.org/pub/source/v${PGSQL_VERSION}/postgresql-${PGSQL_VERSION}.tar.gz \
         | tar xzC $PGSQL_BUILD_DIR --strip-components 1 \
-    && ./configure \
-        --prefix=$INSTALL_DIR \
-        --without-readline \
+    && CFLAGS="-I${INSTALL_DIR}/include" \
+       LDFLAGS="-L${INSTALL_DIR}/lib" \
+       ./configure \
+           --prefix=${INSTALL_DIR} \
+           --without-readline \
     && make -j $(nproc) \
     && make install
 
@@ -133,7 +149,27 @@ RUN set -xe; \
     curl -sL https://download.gnome.org/sources/libxml2/$(echo $LIBXML2_VERSION | cut -d'.' -f-2)/libxml2-${LIBXML2_VERSION}.tar.xz \
         | tar xJC ${LIBXML2_BUILD_DIR} --strip-components 1 \
     && CFLAGS='-O2 -fno-semantic-interposition' \
-        ./configure --prefix=${INSTALL_DIR} \
+       ./configure \
+           --prefix=${INSTALL_DIR} \
+           --without-python \
+    && make -j $(nproc) \
+    && make install
+
+
+#
+# Build libsqlite
+#
+
+ENV LIBSQLITE_VERSION=3.41.0
+ENV LIBSQLITE_BUILD_DIR=${BUILD_DIR}/libsqlite
+
+WORKDIR ${LIBSQLITE_BUILD_DIR}/
+
+RUN set -xe; \
+    curl -sL https://github.com/sqlite/sqlite/archive/refs/tags/version-${LIBSQLITE_VERSION}.tar.gz \
+        | tar xzC ${LIBSQLITE_BUILD_DIR} --strip-components 1 \
+    && ./configure \
+        --prefix=${INSTALL_DIR} \
     && make -j $(nproc) \
     && make install
 
