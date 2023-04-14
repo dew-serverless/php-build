@@ -17,6 +17,7 @@ ENV PKG_CONFIG_PATH=${INSTALL_DIR}/lib64/pkgconfig:${INSTALL_DIR}/lib/pkgconfig 
 # Install dependencies
 RUN apt-get update && apt-get install -y \
         autoconf \
+        cmake \
         curl \
         g++ \
         gcc \
@@ -102,9 +103,45 @@ RUN set -xe; \
 
 RUN curl -sL -o ${CA_BUNDLE} ${CA_BUNDLE_SOURCE}
 
+
+#
+# Build libssh2
+# https://www.libssh2.org
+#
+# Requires:
+#   - OpenSSL
+#   - zlib
+#
+
+ENV LIBSSH2_VERSION=1.10.0
+ENV LIBSSH2_BUILD_DIR=${BUILD_DIR}/libssh2
+
+WORKDIR ${LIBSSH2_BUILD_DIR}/bin
+
+RUN set -xe; \
+    curl -sL https://libssh2.org/download/libssh2-${LIBSSH2_VERSION}.tar.gz \
+        | tar xzC ${LIBSSH2_BUILD_DIR} --strip-components 1
+
+RUN cmake \
+    -DCMAKE_BUILD_TYPE=Release \
+    -DCMAKE_INSTALL_PREFIX=${INSTALL_DIR} \
+    # Using OpenSSL for cryptographic operations
+    -DCRYPTO_BACKEND=OpenSSL \
+    # Build a shared library (.so) instead of a static one
+    -DBUILD_SHARED_LIBS=ON \
+    # Supports data compression
+    -DENABLE_ZLIB_COMPRESSION=ON \
+    ..
+
+RUN cmake --build . --target install
+
+
 #
 # Build libcurl
 #
+# Requires:
+#   - OpenSSL
+#   - libssh2
 # Needed by:
 #   - php (--with-curl)
 #
@@ -121,6 +158,7 @@ RUN set -xe; \
         --prefix=${INSTALL_DIR} \
         --with-ca-bundle=${CA_BUNDLE} \
         --with-openssl \
+        --with-libssh2 \
     && make -j $(nproc) \
     && make install
 
