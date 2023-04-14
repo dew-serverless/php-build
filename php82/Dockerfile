@@ -6,7 +6,7 @@ FROM aliyunfc/runtime-custom:latest
 ENV BUILD_DIR=/tmp/build
 
 # Define a directory for installation
-ENV INSTALL_DIR=/opt/propeller
+ENV INSTALL_DIR=/opt/dew
 
 # Configure environment variables
 ENV PKG_CONFIG_PATH=${INSTALL_DIR}/lib64/pkgconfig:${INSTALL_DIR}/lib/pkgconfig \

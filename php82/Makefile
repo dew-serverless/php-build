@@ -1,2 +1,2 @@
 build:
-	docker build -t propeller/php82 .
+	docker build -t dew/php82 .
