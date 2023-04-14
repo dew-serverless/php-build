@@ -214,16 +214,5 @@ RUN set -xe; \
     && cp php.ini-production ${INSTALL_DIR}/etc/php/php.ini
 
 
-#
-# Build composer
-#
-
-RUN set -xe; \
-    curl -sL https://getcomposer.org/installer \
-        | php -- \
-            --install-dir=${INSTALL_DIR}/bin \
-            --filename=composer
-
-
 # Change directory to where the source code placed
 WORKDIR /code
