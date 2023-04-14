@@ -27,6 +27,12 @@ RUN apt-get update && apt-get install -y \
         zip \
     && rm -rf /var/lib/apt/lists/*
 
+# Prepare directories
+RUN mkdir -p ${INSTALL_DIR} \
+    ${INSTALL_DIR}/etc/php \
+    ${INSTALL_DIR}/etc/php/conf.d
+
+
 #
 # Build zlib
 #
@@ -193,13 +199,19 @@ RUN set -xe; \
            --enable-bcmath \
            --enable-fpm \
            --enable-mbstring \
+           --enable-option-checking=fatal \
+           --enable-sockets \
+           --with-config-file-path=${INSTALL_DIR}/etc/php \
+           --with-config-file-scan-dir=${INSTALL_DIR}/etc/php/conf.d:/code/php/conf.d \
            --with-curl=${INSTALL_DIR} \
            --with-openssl \
            --with-pdo-mysql \
            --with-pdo-pgsql=${INSTALL_DIR} \
+           --with-pear \
            --with-zlib \
     && make -j $(nproc) \
-    && make install
+    && make install \
+    && cp php.ini-production ${INSTALL_DIR}/etc/php/php.ini
 
 
 #
