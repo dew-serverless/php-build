@@ -86,6 +86,8 @@ RUN set -xe; \
 
 ENV OPENSSL_VERSION=3.0.8
 ENV OPENSSL_BUILD_DIR=${BUILD_DIR}/openssl
+ENV CA_BUNDLE_SOURCE="https://curl.se/ca/cacert.pem"
+ENV CA_BUNDLE=${INSTALL_DIR}/dew/ssl/cert.pem
 
 WORKDIR ${OPENSSL_BUILD_DIR}/
 
@@ -94,9 +96,11 @@ RUN set -xe; \
         | tar xzC ${OPENSSL_BUILD_DIR} --strip-components 1 \
     && ./Configure \
         --prefix=${INSTALL_DIR} \
+        --openssldir=${INSTALL_DIR}/dew/ssl \
     && make -j $(nproc) \
     && make install
 
+RUN curl -sL -o ${CA_BUNDLE} ${CA_BUNDLE_SOURCE}
 
 #
 # Build libcurl
@@ -115,6 +119,7 @@ RUN set -xe; \
         | tar xzC ${LIBCURL_BUILD_DIR} --strip-components 1 \
     && ./configure \
         --prefix=${INSTALL_DIR} \
+        --with-ca-bundle=${CA_BUNDLE} \
         --with-openssl \
     && make -j $(nproc) \
     && make install
