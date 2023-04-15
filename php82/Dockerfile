@@ -137,11 +137,39 @@ RUN cmake --build . --target install
 
 
 #
+# Build nghttp2
+# https://nghttp2.org
+#
+# Needed by:
+#   - curl
+#
+
+ENV NGHTTP2_VERSION=1.52.0
+ENV NGHTTP2_BUILD_DIR=${BUILD_DIR}/nghttp2
+
+WORKDIR ${NGHTTP2_BUILD_DIR}/
+
+RUN set -xe; \
+    curl -sL https://github.com/nghttp2/nghttp2/releases/download/v${NGHTTP2_VERSION}/nghttp2-${NGHTTP2_VERSION}.tar.gz \
+    | tar xzC ${NGHTTP2_BUILD_DIR} --strip-components 1
+
+RUN CFLAGS="-I${INSTALL_DIR}/include" \
+    LDFLAGS="-L${INSTALL_DIR}/lib" \
+    ./configure \
+        --prefix=${INSTALL_DIR} \
+        # Build libnghttp2.so only
+        --enable-lib-only
+
+RUN make -j$(nproc) install-strip
+
+
+#
 # Build curl
 #
 # Requires:
 #   - OpenSSL
 #   - libssh2
+#   - nghttp2
 # Needed by:
 #   - php (--with-curl)
 #
@@ -154,11 +182,14 @@ WORKDIR ${CURL_BUILD_DIR}/
 RUN set -xe; \
     curl -sL https://curl.se/download/curl-${CURL_VERSION}.tar.gz \
         | tar xzC ${CURL_BUILD_DIR} --strip-components 1 \
-    && ./configure \
-        --prefix=${INSTALL_DIR} \
-        --with-ca-bundle=${CA_BUNDLE} \
-        --with-openssl \
-        --with-libssh2 \
+    && CFLAGS="-I${INSTALL_DIR}/include" \
+       LDFLAGS="-L${INSTALL_DIR}/lib" \
+       ./configure \
+           --prefix=${INSTALL_DIR} \
+           --with-ca-bundle=${CA_BUNDLE} \
+           --with-openssl \
+           --with-libssh2 \
+           --with-nghttp2 \
     && make -j $(nproc) \
     && make install
 
