@@ -82,7 +82,7 @@ RUN set -xe; \
 # Build OpenSSL
 #
 # Needed by:
-#  - libcurl
+#  - curl
 #
 
 ENV OPENSSL_VERSION=3.0.8
@@ -137,7 +137,7 @@ RUN cmake --build . --target install
 
 
 #
-# Build libcurl
+# Build curl
 #
 # Requires:
 #   - OpenSSL
@@ -146,14 +146,14 @@ RUN cmake --build . --target install
 #   - php (--with-curl)
 #
 
-ENV LIBCURL_VERSION=7.88.1
-ENV LIBCURL_BUILD_DIR=${BUILD_DIR}/libcurl
+ENV CURL_VERSION=7.88.1
+ENV CURL_BUILD_DIR=${BUILD_DIR}/curl
 
-WORKDIR ${LIBCURL_BUILD_DIR}/
+WORKDIR ${CURL_BUILD_DIR}/
 
 RUN set -xe; \
-    curl -sL https://curl.se/download/curl-${LIBCURL_VERSION}.tar.gz \
-        | tar xzC ${LIBCURL_BUILD_DIR} --strip-components 1 \
+    curl -sL https://curl.se/download/curl-${CURL_VERSION}.tar.gz \
+        | tar xzC ${CURL_BUILD_DIR} --strip-components 1 \
     && ./configure \
         --prefix=${INSTALL_DIR} \
         --with-ca-bundle=${CA_BUNDLE} \
