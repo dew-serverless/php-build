@@ -286,6 +286,7 @@ RUN CFLAGS="-march=x86-64 -O3 -pipe -fpie" \
     LDFLAGS="-Wl,-pie" \
     ./configure \
         --prefix=${INSTALL_DIR} \
+        --disable-cgi \
         --enable-bcmath \
         --enable-fpm \
         --enable-ftp \
