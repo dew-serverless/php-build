@@ -288,6 +288,7 @@ RUN CFLAGS="-march=x86-64 -O3 -pipe -fpie" \
         --prefix=${INSTALL_DIR} \
         --enable-bcmath \
         --enable-fpm \
+        --enable-ftp \
         --enable-mbstring \
         --enable-option-checking=fatal \
         --enable-sockets \
