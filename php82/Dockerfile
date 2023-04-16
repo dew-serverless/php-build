@@ -10,8 +10,8 @@ ENV BUILD_DIR=/tmp/build
 ENV INSTALL_DIR=/opt/dew
 
 # Configure environment variables
-ENV PKG_CONFIG_PATH=${INSTALL_DIR}/lib64/pkgconfig:${INSTALL_DIR}/lib/pkgconfig \
-    LD_LIBRARY_PATH=${INSTALL_DIR}/lib64:${INSTALL_DIR}/lib \
+ENV PKG_CONFIG_PATH=${INSTALL_DIR}/lib64/pkgconfig:${INSTALL_DIR}/lib/pkgconfig:${INSTALL_DIR}/lib/x86_64-linux-gnu/pkgconfig \
+    LD_LIBRARY_PATH=${INSTALL_DIR}/lib64:${INSTALL_DIR}/lib:${INSTALL_DIR}/lib/x86_64-linux-gnu \
     PATH=${INSTALL_DIR}/bin:$PATH
 
 # Install dependencies
@@ -262,11 +262,32 @@ RUN set -xe; \
 
 
 #
+# Build libargon2
+# https://github.com/P-H-C/phc-winner-argon2
+#
+# Needed by:
+#   - php
+#
+
+ENV LIBARGON2_VERSION=20190702
+ENV LIBARGON2_BUILD_DIR=${BUILD_DIR}/libargon2
+
+WORKDIR ${LIBARGON2_BUILD_DIR}/
+
+RUN set -xe; \
+    curl -sL https://github.com/P-H-C/phc-winner-argon2/archive/refs/tags/${LIBARGON2_VERSION}.tar.gz \
+    | tar xzC ${LIBARGON2_BUILD_DIR} --strip-components 1
+
+RUN make install PREFIX=${INSTALL_DIR}
+
+
+#
 # Build PHP
 # https://www.php.net
 #
 # Requires:
 #   - curl
+#   - libargon2
 #   - oniguruma
 #   - openssl
 #   - pgsql
@@ -299,6 +320,7 @@ RUN CFLAGS="-march=x86-64 -O3 -pipe -fpie" \
         --with-curl=${INSTALL_DIR} \
         --with-iconv \
         --with-openssl \
+        --with-password-argon2 \
         --with-pdo-mysql \
         --with-pdo-pgsql=${INSTALL_DIR} \
         --with-pear \
