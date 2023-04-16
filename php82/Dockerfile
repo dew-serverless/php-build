@@ -287,6 +287,7 @@ RUN CFLAGS="-march=x86-64 -O3 -pipe -fpie" \
     ./configure \
         --prefix=${INSTALL_DIR} \
         --disable-cgi \
+        --disable-phpdbg \
         --enable-bcmath \
         --enable-fpm \
         --enable-ftp \
