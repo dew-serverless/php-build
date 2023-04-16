@@ -282,12 +282,42 @@ RUN make install PREFIX=${INSTALL_DIR}
 
 
 #
+# Build libzip
+# https://libzip.org
+#
+# Requires:
+#   - openssl
+#   - zlib
+# Needed by:
+#   - php
+
+ENV LIBZIP_VERSION=1.9.2
+ENV LIBZIP_BUILD_DIR=${BUILD_DIR}/libzip
+
+WORKDIR ${LIBZIP_BUILD_DIR}/build
+
+RUN set -xe; \
+    curl -sL https://libzip.org/download/libzip-${LIBZIP_VERSION}.tar.gz \
+    | tar xzC ${LIBZIP_BUILD_DIR} --strip-components 1
+
+RUN cmake \
+    -DCMAKE_INSTALL_PREFIX=${INSTALL_DIR} \
+    -DCMAKE_BUILD_TYPE=Release \
+    # Build a shared library (.so) instead of a static one
+    -DBUILD_SHARED_LIBS=ON \
+    ..
+
+RUN make -j$(nproc) && make install
+
+
+#
 # Build PHP
 # https://www.php.net
 #
 # Requires:
 #   - curl
 #   - libargon2
+#   - libzip
 #   - oniguruma
 #   - openssl
 #   - pgsql
@@ -324,6 +354,7 @@ RUN CFLAGS="-march=x86-64 -O3 -pipe -fpie" \
         --with-pdo-mysql \
         --with-pdo-pgsql=${INSTALL_DIR} \
         --with-pear \
+        --with-zip \
         --with-zlib
 
 RUN set xe; \
