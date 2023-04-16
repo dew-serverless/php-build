@@ -274,6 +274,7 @@ RUN set -xe; \
 
 ENV PHP_VERSION=8.2.3
 ENV PHP_BUILD_DIR=${BUILD_DIR}/php
+ENV PHP_INI_DIR=${INSTALL_DIR}/etc/php
 
 WORKDIR ${PHP_BUILD_DIR}/
 
@@ -290,8 +291,8 @@ RUN CFLAGS="-march=x86-64 -O3 -pipe -fpie" \
         --enable-mbstring \
         --enable-option-checking=fatal \
         --enable-sockets \
-        --with-config-file-path=${INSTALL_DIR}/etc/php \
-        --with-config-file-scan-dir=${INSTALL_DIR}/etc/php/conf.d:/code/php/conf.d \
+        --with-config-file-path=${PHP_INI_DIR} \
+        --with-config-file-scan-dir=${PHP_INI_DIR}/conf.d:/code/php/conf.d \
         --with-curl=${INSTALL_DIR} \
         --with-openssl \
         --with-pdo-mysql \
