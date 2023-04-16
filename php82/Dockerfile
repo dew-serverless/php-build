@@ -340,6 +340,7 @@ RUN CFLAGS="-march=x86-64 -O3 -pipe -fpie" \
         --disable-cgi \
         --disable-phpdbg \
         --enable-bcmath \
+        --enable-exif \
         --enable-fpm \
         --enable-ftp \
         --enable-mbstring \
