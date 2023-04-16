@@ -183,14 +183,20 @@ RUN set -xe; \
     curl -sL https://curl.se/download/curl-${CURL_VERSION}.tar.gz \
     | tar xzC ${CURL_BUILD_DIR} --strip-components 1
 
-RUN CFLAGS="-I${INSTALL_DIR}/include" \
+RUN CFLAGS="-I${INSTALL_DIR}/include -O2 -pipe" \
     LDFLAGS="-L${INSTALL_DIR}/lib" \
     ./configure \
         --prefix=${INSTALL_DIR} \
         --with-ca-bundle=${CA_BUNDLE} \
         --with-openssl \
         --with-libssh2 \
-        --with-nghttp2
+        --with-nghttp2 \
+        # Eliminate unneeded symbols in the shared library
+        --enable-symbol-hiding \
+        # Without built-in documentation
+        --disable-manual \
+        # Eliminate debugging strings and error code strings
+        --disable-verbose
 
 RUN make -j$(nproc) && make install
 
