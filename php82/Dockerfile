@@ -263,7 +263,14 @@ RUN set -xe; \
 
 #
 # Build PHP
+# https://www.php.net
 #
+# Requires:
+#   - curl
+#   - oniguruma
+#   - openssl
+#   - pgsql
+#   - zlib
 
 ENV PHP_VERSION=8.2.3
 ENV PHP_BUILD_DIR=${BUILD_DIR}/php
