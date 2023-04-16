@@ -297,6 +297,7 @@ RUN CFLAGS="-march=x86-64 -O3 -pipe -fpie" \
         --with-config-file-path=${PHP_INI_DIR} \
         --with-config-file-scan-dir=${PHP_INI_DIR}/conf.d:/code/php/conf.d \
         --with-curl=${INSTALL_DIR} \
+        --with-iconv \
         --with-openssl \
         --with-pdo-mysql \
         --with-pdo-pgsql=${INSTALL_DIR} \
