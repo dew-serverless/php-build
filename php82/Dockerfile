@@ -279,27 +279,30 @@ WORKDIR ${PHP_BUILD_DIR}/
 
 RUN set -xe; \
     curl -sL https://www.php.net/distributions/php-${PHP_VERSION}.tar.gz \
-        | tar xzC ${PHP_BUILD_DIR} --strip-components 1 \
-    && CFLAGS="-march=x86-64 -O3 -pipe -fpie" \
-       LDFLAGS="-Wl,-pie" \
-       ./configure \
-           --prefix=${INSTALL_DIR} \
-           --enable-bcmath \
-           --enable-fpm \
-           --enable-mbstring \
-           --enable-option-checking=fatal \
-           --enable-sockets \
-           --with-config-file-path=${INSTALL_DIR}/etc/php \
-           --with-config-file-scan-dir=${INSTALL_DIR}/etc/php/conf.d:/code/php/conf.d \
-           --with-curl=${INSTALL_DIR} \
-           --with-openssl \
-           --with-pdo-mysql \
-           --with-pdo-pgsql=${INSTALL_DIR} \
-           --with-pear \
-           --with-zlib \
-    && make -j $(nproc) \
-    && make install \
-    && cp php.ini-production ${INSTALL_DIR}/etc/php/php.ini
+    | tar xzC ${PHP_BUILD_DIR} --strip-components 1
+
+RUN CFLAGS="-march=x86-64 -O3 -pipe -fpie" \
+    LDFLAGS="-Wl,-pie" \
+    ./configure \
+        --prefix=${INSTALL_DIR} \
+        --enable-bcmath \
+        --enable-fpm \
+        --enable-mbstring \
+        --enable-option-checking=fatal \
+        --enable-sockets \
+        --with-config-file-path=${INSTALL_DIR}/etc/php \
+        --with-config-file-scan-dir=${INSTALL_DIR}/etc/php/conf.d:/code/php/conf.d \
+        --with-curl=${INSTALL_DIR} \
+        --with-openssl \
+        --with-pdo-mysql \
+        --with-pdo-pgsql=${INSTALL_DIR} \
+        --with-pear \
+        --with-zlib
+
+RUN set xe; \
+    make -j$(nproc); \
+    make install; \
+    cp php.ini-production ${INSTALL_DIR}/etc/php/php.ini
 
 
 # Change directory to where the source code placed
