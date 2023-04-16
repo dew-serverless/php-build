@@ -181,17 +181,18 @@ WORKDIR ${CURL_BUILD_DIR}/
 
 RUN set -xe; \
     curl -sL https://curl.se/download/curl-${CURL_VERSION}.tar.gz \
-        | tar xzC ${CURL_BUILD_DIR} --strip-components 1 \
-    && CFLAGS="-I${INSTALL_DIR}/include" \
-       LDFLAGS="-L${INSTALL_DIR}/lib" \
-       ./configure \
-           --prefix=${INSTALL_DIR} \
-           --with-ca-bundle=${CA_BUNDLE} \
-           --with-openssl \
-           --with-libssh2 \
-           --with-nghttp2 \
-    && make -j $(nproc) \
-    && make install
+    | tar xzC ${CURL_BUILD_DIR} --strip-components 1
+
+RUN CFLAGS="-I${INSTALL_DIR}/include" \
+    LDFLAGS="-L${INSTALL_DIR}/lib" \
+    ./configure \
+        --prefix=${INSTALL_DIR} \
+        --with-ca-bundle=${CA_BUNDLE} \
+        --with-openssl \
+        --with-libssh2 \
+        --with-nghttp2
+
+RUN make -j$(nproc) && make install
 
 
 #
