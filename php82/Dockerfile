@@ -311,6 +311,28 @@ RUN make -j$(nproc) && make install
 
 
 #
+# Build icu
+# https://icu.unicode.org
+#
+
+ENV ICU_VERSION=73.1
+ENV ICU_BUILD_DIR=${BUILD_DIR}/icu
+
+WORKDIR ${ICU_BUILD_DIR}/
+
+RUN set -xe; \
+    curl -sL https://github.com/unicode-org/icu/releases/download/release-$(echo $ICU_VERSION | sed "s/\./-/")/icu4c-$(echo $ICU_VERSION | sed "s/\./_/")-src.tgz \
+    | tar xzC ${ICU_BUILD_DIR} --strip-components 1
+
+RUN set -xe; \
+    cd source; \
+    chmod +x runConfigureICU configure install-sh; \
+    ./runConfigureICU Linux/gcc --prefix=${INSTALL_DIR}; \
+    make -j$(nproc); \
+    make install
+
+
+#
 # Build PHP
 # https://www.php.net
 #
@@ -343,6 +365,7 @@ RUN CFLAGS="-march=x86-64 -O3 -pipe -fpie" \
         --enable-exif \
         --enable-fpm \
         --enable-ftp \
+        --enable-intl \
         --enable-mbstring \
         --enable-option-checking=fatal \
         --enable-sockets \
