@@ -1,7 +1,6 @@
-# Build upon Debian 9 (stretch)
-# which is the host OS of Function Compute runtime environment.
+# Build upon Function Compute custom runtime build environment
 # See: https://help.aliyun.com/document_detail/132044.html
-FROM debian:stretch-slim
+FROM aliyunfc/runtime-custom:build-1.10.8 as builder
 
 # Define a directory for building
 ENV BUILD_DIR=/tmp/build
