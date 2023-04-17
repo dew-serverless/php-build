@@ -13,20 +13,6 @@ ENV PKG_CONFIG_PATH=${INSTALL_DIR}/lib64/pkgconfig:${INSTALL_DIR}/lib/pkgconfig:
     LD_LIBRARY_PATH=${INSTALL_DIR}/lib64:${INSTALL_DIR}/lib:${INSTALL_DIR}/lib/x86_64-linux-gnu \
     PATH=${INSTALL_DIR}/bin:$PATH
 
-# Install dependencies
-RUN apt-get update && apt-get install -y \
-        autoconf \
-        cmake \
-        curl \
-        g++ \
-        gcc \
-        make \
-        perl \
-        pkg-config \
-        tclsh \
-        zip \
-    && rm -rf /var/lib/apt/lists/*
-
 # Prepare directories
 RUN mkdir -p ${INSTALL_DIR} \
     ${INSTALL_DIR}/etc/php \
