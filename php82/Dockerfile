@@ -244,20 +244,25 @@ RUN set -xe; \
 
 #
 # Build libsqlite
+# https://www.sqlite.org
+#
+# Needed by:
+#   - php
 #
 
-ENV LIBSQLITE_VERSION=3.41.0
 ENV LIBSQLITE_BUILD_DIR=${BUILD_DIR}/libsqlite
 
 WORKDIR ${LIBSQLITE_BUILD_DIR}/
 
 RUN set -xe; \
-    curl -sL https://github.com/sqlite/sqlite/archive/refs/tags/version-${LIBSQLITE_VERSION}.tar.gz \
-        | tar xzC ${LIBSQLITE_BUILD_DIR} --strip-components 1 \
-    && ./configure \
-        --prefix=${INSTALL_DIR} \
-    && make -j $(nproc) \
-    && make install
+    curl -sL https://www.sqlite.org/2023/sqlite-autoconf-3410200.tar.gz \
+    | tar xzC ${LIBSQLITE_BUILD_DIR} --strip-components 1
+
+RUN CFLAGS="-Os" \
+    ./configure \
+        --prefix=${INSTALL_DIR}
+
+RUN make -j$(nproc) && make install
 
 
 #
