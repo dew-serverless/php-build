@@ -187,7 +187,8 @@ RUN make -j$(nproc) && make install
 
 
 #
-# Build oniguruma
+# Build onig
+# https://github.com/kkos/oniguruma
 #
 # regular expression library
 #
@@ -196,16 +197,19 @@ RUN make -j$(nproc) && make install
 #
 
 ENV ONIG_VERSION=6.9.8
-ENV ONIG_BUILD_DIR=${BUILD_DIR}/oniguruma
+ENV ONIG_BUILD_DIR=${BUILD_DIR}/onig
 
 WORKDIR ${ONIG_BUILD_DIR}/
 
 RUN set -xe; \
     curl -sL https://github.com/kkos/oniguruma/releases/download/v${ONIG_VERSION}/onig-${ONIG_VERSION}.tar.gz \
-        | tar xzC ${ONIG_BUILD_DIR} --strip-components 1 \
-    && ./configure --prefix=${INSTALL_DIR} \
-    && make -j $(nproc) \
-    && make install
+        | tar xzC ${ONIG_BUILD_DIR} --strip-components 1
+
+RUN CFLAGS="-O2 -pipe" \
+    ./configure \
+        --prefix=${INSTALL_DIR}
+
+RUN make -j$(nproc) && make install
 
 
 #
