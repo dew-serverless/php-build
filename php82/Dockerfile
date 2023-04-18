@@ -368,6 +368,7 @@ RUN CFLAGS="-march=x86-64 -O3 -pipe -fpie" \
         --with-pdo-mysql \
         --with-pdo-pgsql=${INSTALL_DIR} \
         --with-pear \
+        --with-readline \
         --with-zip \
         --with-zlib
 
