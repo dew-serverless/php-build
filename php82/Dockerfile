@@ -82,11 +82,13 @@ RUN set -xe; \
     curl -sL https://github.com/openssl/openssl/releases/download/openssl-${OPENSSL_VERSION}/openssl-${OPENSSL_VERSION}.tar.gz \
     | tar xzC ${OPENSSL_BUILD_DIR} --strip-components 1
 
-RUN ./Configure \
+RUN CFLAGS="-O2 -pipe" \
+    ./Configure \
         --prefix=${INSTALL_DIR} \
-        --openssldir=${INSTALL_DIR}/dew/ssl
+        --openssldir=${INSTALL_DIR}/dew/ssl \
+        --release
 
-RUN make -j$(nproc) && make install
+RUN make -j$(nproc) && make install_sw install_ssldirs
 
 RUN curl -sL -o ${CA_BUNDLE} ${CA_BUNDLE_SOURCE}
 
