@@ -10,4 +10,4 @@ zip: export/php82
 	cd export/php82; zip -r ../php82.zip .
 
 clean:
-	rm -rf ./export/php82
+	rm -rf ./export/php82*
