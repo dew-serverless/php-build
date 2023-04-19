@@ -370,5 +370,43 @@ RUN set xe; \
     cp php.ini-production ${INSTALL_DIR}/etc/php/php.ini
 
 
+# Constrct everything we need into dedicated location before moving to next stage
+
+RUN mkdir -p /layer \
+    /layer/bin \
+    /layer/lib \
+    /layer/lib/php/extensions \
+    /layer/etc/php \
+    /layer/etc/php/conf.d \
+    /layer/dew/ssl
+
+RUN set -xe; \
+    # Copy executables
+    cp ${INSTALL_DIR}/bin/php  /layer/bin/; \
+    cp ${INSTALL_DIR}/sbin/php-fpm /layer/bin/; \
+    # Copy OpenSSL configuration and CA bundle
+    cp ${INSTALL_DIR}/dew/ssl/openssl.cnf /layer/dew/ssl/; \
+    cp ${CA_BUNDLE} /layer/dew/ssl/; \
+    # Copy shared library (.so)
+    ldd ${INSTALL_DIR}/bin/php \
+        | grep ${INSTALL_DIR} \
+        | cut -d' ' -f3 \
+        | xargs -I % cp % /layer/lib/; \
+    # Copy PHP extensions
+    cp $(php -r "echo ini_get('extension_dir');")/* /layer/lib/php/extensions/; \
+    # Copy PHP Configuration file
+    cp ${INSTALL_DIR}/etc/php/php.ini /layer/etc/php/; \
+    # Strip all symbols and debugging information for executables
+    find /layer -type f -executable -exec strip --strip-all '{}' + || true
+
+COPY stubs/php.ini /layer/etc/php/conf.d
+
+
+# Leave build environment behind and start with a clean image
+FROM aliyunfc/runtime-custom:1.10.8
+
+COPY --from=builder /layer /opt/dew
+
+
 # Change directory to where the source code placed
 WORKDIR /code
