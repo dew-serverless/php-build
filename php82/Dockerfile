@@ -329,6 +329,7 @@ RUN CFLAGS="-march=x86-64 -O3 -pipe -fpie" \
         --enable-ftp \
         --enable-intl \
         --enable-mbstring \
+        --enable-opcache \
         --enable-option-checking=fatal \
         --enable-sockets \
         --with-config-file-path=${PHP_INI_DIR} \
