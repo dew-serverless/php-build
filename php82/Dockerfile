@@ -341,7 +341,7 @@ RUN CFLAGS="-march=x86-64 -O3 -pipe -fpie" \
         --with-pdo-pgsql=shared,${INSTALL_DIR} \
 	--with-pgsql=shared \
         --with-pear \
-        --with-readline \
+        --with-readline=shared \
         --with-zip \
         --with-zlib
 
