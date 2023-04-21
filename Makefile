@@ -1,6 +1,6 @@
 OSS_BUCKET=
 
-.PHONY: build export zip upload clean
+.PHONY: build export zip upload publish clean
 
 build:
 	docker build -t dew/php82 -f php82/Dockerfile .
@@ -13,6 +13,9 @@ zip: export/php82
 
 upload: export/php82.zip
 	aliyun oss cp export/php82.zip oss://$(OSS_BUCKET)/php82.zip
+
+publish:
+	aliyun fc-open CreateLayerVersion --layerName php82 --body "{\"Code\":{\"ossBucketName\":\"$(OSS_BUCKET)\",\"ossObjectName\":\"php82.zip\"},\"compatibleRuntime\":[\"custom\"]}"
 
 clean:
 	rm -rf ./export/php82*
