@@ -26,26 +26,6 @@ RUN mkdir -p ${INSTALL_DIR} \
 
 
 #
-# Build zlib
-#
-# Needed by:
-#   - php (--with-zlib)
-#
-
-ENV ZLIB_VERSION=1.2.13
-ENV ZLIB_BUILD_DIR=${BUILD_DIR}/zlib
-
-WORKDIR ${ZLIB_BUILD_DIR}/
-
-RUN set -xe; \
-    curl -sL https://www.zlib.net/zlib-${ZLIB_VERSION}.tar.gz \
-        | tar xzC ${ZLIB_BUILD_DIR} --strip-components 1 \
-    && ./configure --prefix=${INSTALL_DIR} \
-    && make -j $(nproc) \
-    && make install
-
-
-#
 # Build PostgreSQL
 #
 # Needed by:
