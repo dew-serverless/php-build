@@ -25,13 +25,12 @@ RUN mkdir -p ${INSTALL_DIR} \
     ${INSTALL_DIR}/etc/php/conf.d
 
 
-#
+# =============================================================================
 # Build PostgreSQL
 # https://www.postgresql.org
 #
 # Needed by:
 #   - php
-#
 
 ENV PGSQL_VERSION=15.2
 ENV PGSQL_BUILD_DIR=${BUILD_DIR}/pgsql
@@ -53,13 +52,12 @@ RUN make -j$(nproc) && \
     make -C src/interfaces install
 
 
-#
+# =============================================================================
 # Build OpenSSL
 # https://www.openssl.org
 #
 # Needed by:
 #  - curl
-#
 
 ENV OPENSSL_VERSION=3.0.8
 ENV OPENSSL_BUILD_DIR=${BUILD_DIR}/openssl
@@ -83,14 +81,13 @@ RUN make -j$(nproc) && make install_sw install_ssldirs
 RUN curl -sL -o ${CA_BUNDLE} ${CA_BUNDLE_SOURCE}
 
 
-#
+# =============================================================================
 # Build libssh2
 # https://www.libssh2.org
 #
 # Requires:
 #   - OpenSSL
 #   - zlib
-#
 
 ENV LIBSSH2_VERSION=1.10.0
 ENV LIBSSH2_BUILD_DIR=${BUILD_DIR}/libssh2
@@ -115,13 +112,12 @@ RUN cmake \
 RUN cmake --build . --target install
 
 
-#
+# =============================================================================
 # Build nghttp2
 # https://nghttp2.org
 #
 # Needed by:
 #   - curl
-#
 
 ENV NGHTTP2_VERSION=1.52.0
 ENV NGHTTP2_BUILD_DIR=${BUILD_DIR}/nghttp2
@@ -142,16 +138,17 @@ RUN CFLAGS="-I${INSTALL_DIR}/include" \
 RUN make -j$(nproc) install-strip
 
 
-#
+# =============================================================================
 # Build curl
+# https://curl.se
 #
 # Requires:
 #   - OpenSSL
 #   - libssh2
 #   - nghttp2
+#
 # Needed by:
 #   - php (--with-curl)
-#
 
 ENV CURL_VERSION=7.88.1
 ENV CURL_BUILD_DIR=${BUILD_DIR}/curl
@@ -180,7 +177,7 @@ RUN CFLAGS="-I${INSTALL_DIR}/include -O2 -pipe" \
 RUN make -j$(nproc) && make install
 
 
-#
+# =============================================================================
 # Build onig
 # https://github.com/kkos/oniguruma
 #
@@ -188,7 +185,6 @@ RUN make -j$(nproc) && make install
 #
 # Needed by:
 #  - php (--enable-mbstring)
-#
 
 ENV ONIG_VERSION=6.9.8
 ENV ONIG_BUILD_DIR=${BUILD_DIR}/onig
@@ -206,13 +202,12 @@ RUN CFLAGS="-O2 -pipe" \
 RUN make -j$(nproc) && make install
 
 
-#
+# =============================================================================
 # Build libxml2
 # https://gitlab.gnome.org/GNOME/libxml2
 #
 # Needed by:
 #   - php
-#
 
 ENV LIBXML2_VERSION=2.10.3
 ENV LIBXML2_BUILD_DIR=${BUILD_DIR}/libxml2
@@ -231,13 +226,12 @@ RUN CFLAGS='-O2 -pipe -fno-semantic-interposition' \
 RUN make -j$(nproc) && make install
 
 
-#
+# =============================================================================
 # Build libsqlite
 # https://www.sqlite.org
 #
 # Needed by:
 #   - php
-#
 
 ENV LIBSQLITE_BUILD_DIR=${BUILD_DIR}/libsqlite
 
@@ -254,13 +248,12 @@ RUN CFLAGS="-Os" \
 RUN make -j$(nproc) && make install
 
 
-#
+# =============================================================================
 # Build libargon2
 # https://github.com/P-H-C/phc-winner-argon2
 #
 # Needed by:
 #   - php
-#
 
 ENV LIBARGON2_VERSION=20190702
 ENV LIBARGON2_BUILD_DIR=${BUILD_DIR}/libargon2
@@ -274,13 +267,14 @@ RUN set -xe; \
 RUN make install PREFIX=${INSTALL_DIR}
 
 
-#
+# =============================================================================
 # Build libzip
 # https://libzip.org
 #
 # Requires:
 #   - openssl
 #   - zlib
+#
 # Needed by:
 #   - php
 
@@ -303,7 +297,7 @@ RUN cmake \
 RUN make -j$(nproc) && make install
 
 
-#
+# =============================================================================
 # Build PHP
 # https://www.php.net
 #
@@ -362,7 +356,8 @@ RUN set xe; \
     cp php.ini-production ${INSTALL_DIR}/etc/php/php.ini
 
 
-# Constrct everything we need into dedicated location before moving to next stage
+# =============================================================================
+# Constrct everything we need before moving to next stage
 
 RUN mkdir -p /layer \
     /layer/bin \
@@ -394,6 +389,7 @@ RUN set -xe; \
 COPY stubs/php.ini /layer/etc/php/conf.d
 
 
+# =============================================================================
 # Leave build environment behind and start with a clean image
 FROM aliyunfc/runtime-custom:1.10.8
 
