@@ -208,6 +208,10 @@ RUN make -j$(nproc) && make install
 
 #
 # Build libxml2
+# https://gitlab.gnome.org/GNOME/libxml2
+#
+# Needed by:
+#   - php
 #
 
 ENV LIBXML2_VERSION=2.10.3
