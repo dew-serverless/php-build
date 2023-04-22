@@ -324,20 +324,20 @@ RUN CFLAGS="-march=x86-64 -O3 -pipe -fpie" \
     LDFLAGS="-Wl,-pie" \
     ./configure \
         --prefix=${INSTALL_DIR} \
-        --disable-cgi \
+        --enable-option-checking=fatal \
+        --with-config-file-path=${PHP_INI_DIR} \
+        --with-config-file-scan-dir=${PHP_INI_DIR}/conf.d:/code/php/conf.d \
         --disable-phpdbg \
+        --disable-cgi \
+        --enable-fpm \
         --enable-bcmath \
         --enable-exif \
-        --enable-fpm \
         --enable-ftp \
         --enable-intl \
         --enable-mbstring \
         --enable-opcache \
-        --enable-option-checking=fatal \
         --enable-sockets \
         --enable-pcntl \
-        --with-config-file-path=${PHP_INI_DIR} \
-        --with-config-file-scan-dir=${PHP_INI_DIR}/conf.d:/code/php/conf.d \
         --with-curl=${INSTALL_DIR} \
         --with-iconv \
         --with-openssl \
