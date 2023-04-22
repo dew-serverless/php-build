@@ -42,13 +42,15 @@ RUN set -xe; \
     curl -sL https://ftp.postgresql.org/pub/source/v${PGSQL_VERSION}/postgresql-${PGSQL_VERSION}.tar.gz \
     | tar xzC ${PGSQL_BUILD_DIR} --strip-components 1
 
-RUN CFLAGS="-I${INSTALL_DIR}/include" \
+RUN CFLAGS="-I${INSTALL_DIR}/include -O2 -pipe" \
     LDFLAGS="-L${INSTALL_DIR}/lib" \
    ./configure \
        --prefix=${INSTALL_DIR} \
        --without-readline
 
-RUN make -j$(nproc) && make install
+RUN make -j$(nproc) && \
+    make -C src/include install && \
+    make -C src/interfaces install
 
 
 #
