@@ -326,7 +326,7 @@ RUN CFLAGS="-march=x86-64 -O3 -pipe -fpie" \
         --prefix=${INSTALL_DIR} \
         --enable-option-checking=fatal \
         --with-config-file-path=${PHP_INI_DIR} \
-        --with-config-file-scan-dir=${PHP_INI_DIR}/conf.d:/code/php/conf.d \
+        --with-config-file-scan-dir=${PHP_INI_DIR}/conf.d:${FC_FUNC_CODE_PATH}/php/conf.d \
         --disable-phpdbg \
         --disable-cgi \
         --enable-fpm \
@@ -397,4 +397,4 @@ COPY --from=builder /layer /opt/dew
 
 
 # Change directory to where the source code placed
-WORKDIR /code
+WORKDIR ${FC_FUNC_CODE_PATH}/
