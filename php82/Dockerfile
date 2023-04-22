@@ -27,9 +27,10 @@ RUN mkdir -p ${INSTALL_DIR} \
 
 #
 # Build PostgreSQL
+# https://www.postgresql.org
 #
 # Needed by:
-#   - php (--with-pdo-pgsql)
+#   - php
 #
 
 ENV PGSQL_VERSION=15.2
