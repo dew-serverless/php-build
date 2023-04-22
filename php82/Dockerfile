@@ -223,7 +223,7 @@ RUN set -xe; \
     curl -sL https://download.gnome.org/sources/libxml2/$(echo $LIBXML2_VERSION | cut -d'.' -f-2)/libxml2-${LIBXML2_VERSION}.tar.xz \
     | tar xJC ${LIBXML2_BUILD_DIR} --strip-components 1
 
-RUN CFLAGS='-O2 -fno-semantic-interposition' \
+RUN CFLAGS='-O2 -pipe -fno-semantic-interposition' \
    ./configure \
        --prefix=${INSTALL_DIR} \
        --without-python
