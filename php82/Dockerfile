@@ -374,13 +374,19 @@ RUN set -xe; \
     # Copy OpenSSL configuration and CA bundle
     cp ${INSTALL_DIR}/dew/ssl/openssl.cnf /layer/dew/ssl/; \
     cp ${CA_BUNDLE} /layer/dew/ssl/; \
-    # Copy shared library (.so)
+    # Copy shared library (.so) for PHP
     ldd ${INSTALL_DIR}/bin/php \
         | grep ${INSTALL_DIR} \
         | cut -d' ' -f3 \
         | xargs -I % cp % /layer/lib/; \
     # Copy PHP extensions
     cp $(php -r "echo ini_get('extension_dir');")/* /layer/lib/php/extensions/; \
+    # Copy shared library (.so) for PHP extensions
+    ldd /layer/lib/php/extensions/* \
+        | grep "=> ${INSTALL_DIR}" \
+        | cut -d' ' -f3 \
+        | uniq \
+        | xargs -I % cp % /layer/lib/; \
     # Copy PHP Configuration file
     cp ${INSTALL_DIR}/etc/php/php.ini /layer/etc/php/; \
     # Strip all symbols and debugging information for executables
