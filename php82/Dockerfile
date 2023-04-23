@@ -342,7 +342,7 @@ RUN CFLAGS="-march=x86-64 -O3 -pipe -fpie" \
         --with-iconv \
         --with-openssl \
         --with-password-argon2 \
-        --with-pdo-mysql \
+        --with-pdo-mysql=shared,mysqlnd  \
         --with-pdo-pgsql=shared,${INSTALL_DIR} \
         --with-pgsql=shared \
         --with-pear \
