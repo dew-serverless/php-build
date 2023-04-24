@@ -363,6 +363,7 @@ RUN mkdir -p /layer \
     /layer/bin \
     /layer/lib \
     /layer/lib/php/extensions \
+    /layer/etc \
     /layer/etc/php \
     /layer/etc/php/conf.d \
     /layer/dew/ssl
@@ -393,6 +394,7 @@ RUN set -xe; \
     find /layer -type f -executable -exec strip --strip-all '{}' + || true
 
 COPY stubs/php.ini /layer/etc/php/conf.d
+COPY stubs/php-fpm.conf /layer/etc
 
 
 # =============================================================================
