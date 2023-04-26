@@ -10,7 +10,8 @@ ENV INSTALL_DIR=/opt
 
 # Configure environment variables
 ENV PKG_CONFIG_PATH=${INSTALL_DIR}/lib64/pkgconfig:${INSTALL_DIR}/lib/pkgconfig:${INSTALL_DIR}/lib/x86_64-linux-gnu/pkgconfig \
-    LD_LIBRARY_PATH=${INSTALL_DIR}/lib64:${INSTALL_DIR}/lib
+    LD_LIBRARY_PATH=${INSTALL_DIR}/lib64:${INSTALL_DIR}/lib:${INSTALL_DIR}/lib/x86_64-linux-gnu \
+    PATH=${INSTALL_DIR}/bin:$PATH
 
 # Install dependencies
 # camke: libzip uses cmake to build
