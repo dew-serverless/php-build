@@ -250,8 +250,16 @@ RUN set -xe; \
     curl -sL https://www.php.net/distributions/php-${PHP_VERSION}.tar.gz \
     | tar xzC ${PHP_BUILD_DIR} --strip-components 1
 
-RUN CFLAGS="-march=x86-64 -O3 -pipe -fpie" \
-    LDFLAGS="-Wl,-pie" \
+# -fstack-protector-strong: Buffer overflow protection
+# -O3: Highest level of optimization
+# -pipe: Use pipes instead of temporary files
+# -fpie: Position-independent executable
+# -ffunction-sections: Discard unused functions
+# -fdata-sections: Discard unused variables
+# --gc-sections: Remove unused sections, conjunction with -ffunction-sections and -fdata-sections
+# -D_LARGEFILE_SOURCE and -D_FILE_OFFSET_BITS=64: Support large files (https://www.php.net/manual/en/intro.filesystem.php)
+RUN CFLAGS="-fstack-protector-strong -O3 -pipe -fpie -ffunction-sections -fdata-sections -D_LARGEFILE_SOURCE -D_FILE_OFFSET_BITS=64" \
+    LDFLAGS="-Wl,-O1 -pie -Wl,--strip-all -Wl,--gc-sections" \
     ./configure \
         --prefix=${INSTALL_DIR} \
         --enable-option-checking=fatal \
