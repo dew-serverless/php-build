@@ -1,285 +1,374 @@
-# Build upon base image on custom runtime.
-# Debian 9 is the current container envionment on Function Compute.
+# Build upon Function Compute custom runtime build environment
 # See: https://help.aliyun.com/document_detail/132044.html
-FROM debian:stretch
+FROM aliyunfc/runtime-custom:build-1.10.8 as builder
 
-RUN apt-get update
-
-RUN apt-get install -y build-essential autoconf libtool cmake pkg-config \
-    tclsh curl libsqlite3-dev libreadline-dev
-
-WORKDIR /tmp
-
-# Directory for package installation
-ENV INSTALL_DIR=/opt/propeller
-
-# Directory for building source code
+# Define a directory for building
 ENV BUILD_DIR=/tmp/build
 
-# Create the directories
-RUN mkdir -p ${BUILD_DIR} \
+# Define a directory for installation
+ENV INSTALL_DIR=/opt
+
+# Configure environment variables
+ENV PKG_CONFIG_PATH=${INSTALL_DIR}/lib64/pkgconfig:${INSTALL_DIR}/lib/pkgconfig:${INSTALL_DIR}/lib/x86_64-linux-gnu/pkgconfig \
+    LD_LIBRARY_PATH=${INSTALL_DIR}/lib64:${INSTALL_DIR}/lib:${INSTALL_DIR}/lib/x86_64-linux-gnu \
+    PATH=${INSTALL_DIR}/bin:$PATH
+
+# The image is based on Debian 9 (stretch) which is now being archived
+# We need to change the source list to use archive.debian.org
+RUN echo "deb http://archive.debian.org/debian/ stretch main" | tee /etc/apt/sources.list
+
+# Install dependencies
+# libicu*: needed by PHP intl extension
+# libpq*: needed by PHP pgsql extension
+RUN apt-get update && \
+    apt-get install --allow-downgrades -y \
+        libicu57=57.1-6+deb9u4 libicu-dev \
+        libpq5=9.6.17-0+deb9u1 libpq-dev && \
+    rm -rf /var/lib/apt/lists/*
+
+# Prepare directories
+RUN mkdir -p ${INSTALL_DIR} \
     ${INSTALL_DIR}/etc/php \
     ${INSTALL_DIR}/etc/php/conf.d
 
-ENV PKG_CONFIG_PATH=${INSTALL_DIR}/lib64/pkgconfig:${INSTALL_DIR}/lib/pkgconfig \
-    LD_LIBRARY_PATH=${INSTALL_DIR}/lib64:${INSTALL_DIR}/lib \
-    PATH=${INSTALL_DIR}/bin:$PATH
 
+# =============================================================================
 # Build OpenSSL
 # https://www.openssl.org
+#
+# Needed by:
+#  - curl
 
-ENV VERSION_OPENSSL=3.0.2
+ENV OPENSSL_VERSION=3.0.8
 ENV OPENSSL_BUILD_DIR=${BUILD_DIR}/openssl
-ENV CA_BUNDLE=${INSTALL_DIR}/ssl/cert.pem
-ENV CA_BUNDLE_SOURCE=https://curl.se/ca/cacert.pem
+ENV CA_BUNDLE_SOURCE="https://curl.se/ca/cacert.pem"
+ENV CA_BUNDLE=${INSTALL_DIR}/dew/ssl/cert.pem
+
+WORKDIR ${OPENSSL_BUILD_DIR}/
 
 RUN set -xe; \
-    mkdir ${OPENSSL_BUILD_DIR} \
-    && curl -s -L https://www.openssl.org/source/openssl-${VERSION_OPENSSL}.tar.gz \
-    | tar xzC ${OPENSSL_BUILD_DIR} --strip 1
+    curl -sL https://github.com/openssl/openssl/releases/download/openssl-${OPENSSL_VERSION}/openssl-${OPENSSL_VERSION}.tar.gz \
+    | tar xzC ${OPENSSL_BUILD_DIR} --strip-components 1
 
-WORKDIR ${OPENSSL_BUILD_DIR}
-
-RUN set -xe; \
+RUN CFLAGS="-O2 -pipe" \
     ./Configure \
         --prefix=${INSTALL_DIR} \
-        '-Wl,-rpath,${INSTALL_DIR}/lib64' \
-    && make -j $(nproc) \
-    && make install \
-    && curl -s -L -o ${CA_BUNDLE} ${CA_BUNDLE_SOURCE}
+        --openssldir=${INSTALL_DIR}/dew/ssl \
+        --release
+
+RUN make -j$(nproc) && make install_sw install_ssldirs
+
+RUN curl -sL -o ${CA_BUNDLE} ${CA_BUNDLE_SOURCE}
 
 
+# =============================================================================
+# Build libssh2
+# https://www.libssh2.org
+#
+# Requires:
+#   - OpenSSL
+#   - zlib
+
+ENV LIBSSH2_VERSION=1.10.0
+ENV LIBSSH2_BUILD_DIR=${BUILD_DIR}/libssh2
+
+WORKDIR ${LIBSSH2_BUILD_DIR}/bin
+
+RUN set -xe; \
+    curl -sL https://libssh2.org/download/libssh2-${LIBSSH2_VERSION}.tar.gz \
+        | tar xzC ${LIBSSH2_BUILD_DIR} --strip-components 1
+
+RUN cmake \
+    -DCMAKE_BUILD_TYPE=Release \
+    -DCMAKE_INSTALL_PREFIX=${INSTALL_DIR} \
+    # Using OpenSSL for cryptographic operations
+    -DCRYPTO_BACKEND=OpenSSL \
+    # Build a shared library (.so) instead of a static one
+    -DBUILD_SHARED_LIBS=ON \
+    # Supports data compression
+    -DENABLE_ZLIB_COMPRESSION=ON \
+    ..
+
+RUN cmake --build . --target install
+
+
+# =============================================================================
+# Build nghttp2
+# https://nghttp2.org
+#
+# Needed by:
+#   - curl
+
+ENV NGHTTP2_VERSION=1.52.0
+ENV NGHTTP2_BUILD_DIR=${BUILD_DIR}/nghttp2
+
+WORKDIR ${NGHTTP2_BUILD_DIR}/
+
+RUN set -xe; \
+    curl -sL https://github.com/nghttp2/nghttp2/releases/download/v${NGHTTP2_VERSION}/nghttp2-${NGHTTP2_VERSION}.tar.gz \
+    | tar xzC ${NGHTTP2_BUILD_DIR} --strip-components 1
+
+RUN CFLAGS="-I${INSTALL_DIR}/include" \
+    LDFLAGS="-L${INSTALL_DIR}/lib" \
+    ./configure \
+        --prefix=${INSTALL_DIR} \
+        # Build libnghttp2.so only
+        --enable-lib-only
+
+RUN make -j$(nproc) install-strip
+
+
+# =============================================================================
+# Build curl
+# https://curl.se
+#
+# Requires:
+#   - OpenSSL
+#   - libssh2
+#   - nghttp2
+#
+# Needed by:
+#   - php (--with-curl)
+
+ENV CURL_VERSION=7.88.1
+ENV CURL_BUILD_DIR=${BUILD_DIR}/curl
+
+WORKDIR ${CURL_BUILD_DIR}/
+
+RUN set -xe; \
+    curl -sL https://curl.se/download/curl-${CURL_VERSION}.tar.gz \
+    | tar xzC ${CURL_BUILD_DIR} --strip-components 1
+
+RUN CFLAGS="-I${INSTALL_DIR}/include -O2 -pipe" \
+    LDFLAGS="-L${INSTALL_DIR}/lib" \
+    ./configure \
+        --prefix=${INSTALL_DIR} \
+        --with-ca-bundle=${CA_BUNDLE} \
+        --with-openssl \
+        --with-libssh2 \
+        --with-nghttp2 \
+        # Eliminate unneeded symbols in the shared library
+        --enable-symbol-hiding \
+        # Without built-in documentation
+        --disable-manual \
+        # Eliminate debugging strings and error code strings
+        --disable-verbose
+
+RUN make -j$(nproc) && make install
+
+
+# =============================================================================
+# Build onig
+# https://github.com/kkos/oniguruma
+#
+# regular expression library
+#
+# Needed by:
+#  - php (--enable-mbstring)
+
+ENV ONIG_VERSION=6.9.8
+ENV ONIG_BUILD_DIR=${BUILD_DIR}/onig
+
+WORKDIR ${ONIG_BUILD_DIR}/
+
+RUN set -xe; \
+    curl -sL https://github.com/kkos/oniguruma/releases/download/v${ONIG_VERSION}/onig-${ONIG_VERSION}.tar.gz \
+        | tar xzC ${ONIG_BUILD_DIR} --strip-components 1
+
+RUN CFLAGS="-O2 -pipe" \
+    ./configure \
+        --prefix=${INSTALL_DIR}
+
+RUN make -j$(nproc) && make install
+
+
+# =============================================================================
 # Build libxml2
 # https://gitlab.gnome.org/GNOME/libxml2
-# Needed by: php
+#
+# Needed by:
+#   - php
 
-ENV VERSION_LIBXML2=2.9.13
+ENV LIBXML2_VERSION=2.10.3
 ENV LIBXML2_BUILD_DIR=${BUILD_DIR}/libxml2
 
-WORKDIR ${LIBXML2_BUILD_DIR}
+WORKDIR ${LIBXML2_BUILD_DIR}/
 
 RUN set -xe; \
-    curl -s -L https://gitlab.gnome.org/GNOME/libxml2/-/archive/v${VERSION_LIBXML2}/libxml2-v${VERSION_LIBXML2}.tar.gz \
-    | tar xzC ${LIBXML2_BUILD_DIR} --strip 1
+    curl -sL https://download.gnome.org/sources/libxml2/$(echo $LIBXML2_VERSION | cut -d'.' -f-2)/libxml2-${LIBXML2_VERSION}.tar.xz \
+    | tar xJC ${LIBXML2_BUILD_DIR} --strip-components 1
 
-RUN set -xe; \
-    CFLAGS='-O2 -fno-semantic-interposition' \
-    ./autogen.sh \
-        --prefix=${INSTALL_DIR} \
-    && make -j $(nproc) \
-    && make install
+RUN CFLAGS='-O2 -pipe -fno-semantic-interposition' \
+   ./configure \
+       --prefix=${INSTALL_DIR} \
+       --without-python
 
-
-# Build SQLite
-# https://sqlite.org/index.html
-# Needed by: PHP
-
-ENV VERSION_SQLITE=3.38.2
-ENV SQLITE_BUILD_DIR=${BUILD_DIR}/sqlite
-
-RUN set -xe; \
-    mkdir ${SQLITE_BUILD_DIR} \
-    && curl -s -L https://github.com/sqlite/sqlite/archive/refs/tags/version-${VERSION_SQLITE}.tar.gz \
-    | tar xzC ${SQLITE_BUILD_DIR} --strip 1
-
-WORKDIR ${SQLITE_BUILD_DIR}
-
-RUN set -xe; \
-    ./configure \
-        --prefix=${INSTALL_DIR} \
-    && make -j $(nproc) \
-    && make install
+RUN make -j$(nproc) && make install
 
 
-# Build libcurl
-# https://curl.se
+# =============================================================================
+# Build libargon2
+# https://github.com/P-H-C/phc-winner-argon2
+#
 # Needed by:
-#   - PHP
+#   - php
 
-ENV VERSION_LIBCURL=7.82.0
-ENV LIBCURL_BUILD_DIR=${BUILD_DIR}/libcurl
+ENV LIBARGON2_VERSION=20190702
+ENV LIBARGON2_BUILD_DIR=${BUILD_DIR}/libargon2
 
-RUN set -xe; \
-    mkdir ${LIBCURL_BUILD_DIR} \
-    && curl -s -L https://curl.se/download/curl-${VERSION_LIBCURL}.tar.gz \
-    | tar xzC ${LIBCURL_BUILD_DIR} --strip 1
-
-WORKDIR ${LIBCURL_BUILD_DIR}
+WORKDIR ${LIBARGON2_BUILD_DIR}/
 
 RUN set -xe; \
-    PKG_CONFIG_PATH=${INSTALL_DIR}/lib64/pkgconfig \
-    ./configure \
-        --prefix=${INSTALL_DIR} \
-        --with-openssl \
-    && make -j $(nproc) \
-    && make install
+    curl -sL https://github.com/P-H-C/phc-winner-argon2/archive/refs/tags/${LIBARGON2_VERSION}.tar.gz \
+    | tar xzC ${LIBARGON2_BUILD_DIR} --strip-components 1
+
+RUN make install PREFIX=${INSTALL_DIR}
 
 
-# Build oniguruma
-# https://github.com/kkos/oniguruma
-# Needed by: PHP --enable-mbstring
-
-ENV VERSION_ONIGURUMA=6.9.7.1
-ENV ONIGURUMA_BUILD_DIR=${BUILD_DIR}/oniguruma
-
-WORKDIR ${ONIGURUMA_BUILD_DIR}
-
-RUN set -xe; \
-    curl -s -L https://github.com/kkos/oniguruma/releases/download/v${VERSION_ONIGURUMA}/onig-${VERSION_ONIGURUMA}.tar.gz \
-    | tar xzC ${ONIGURUMA_BUILD_DIR} --strip 1
-
-RUN set -xe; \
-    ./configure \
-        --prefix=${INSTALL_DIR} \
-    && make -j $(nproc) \
-    && make install
-
-
-# Build readline
-# https://tiswww.case.edu/php/chet/readline/rltop.html
-# Needed by:
-#   - PHP --with-readline
-
-ENV VERSION_READLINE=8.1
-ENV READLINE_BUILD_DIR=${BUILD_DIR}/readline
-
-RUN set -xe; \
-    mkdir ${READLINE_BUILD_DIR} \
-    && curl -s -L ftp://ftp.cwru.edu/pub/bash/readline-${VERSION_READLINE}.tar.gz \
-    | tar xzC ${READLINE_BUILD_DIR} --strip 1
-
-WORKDIR ${READLINE_BUILD_DIR}
-
-RUN set -xe; \
-    ./configure \
-        --prefix ${INSTALL_DIR} \
-    && make -j $(nproc) \
-    && make install
-
-
-# Build zlib
-# https://www.zlib.net
-# Needed by:
-#   - libzip
-#   - PHP --with-zlib
-
-ENV VERSION_ZLIB=1.2.12
-ENV ZLIB_BUILD_DIR=${INSTALL_DIR}/zlib
-
-RUN set -xe; \
-    mkdir ${ZLIB_BUILD_DIR} \
-    && curl -s -L https://www.zlib.net/zlib-${VERSION_ZLIB}.tar.gz \
-    | tar xzC ${ZLIB_BUILD_DIR} --strip 1
-
-WORKDIR ${ZLIB_BUILD_DIR}
-
-RUN set -xe; \
-    ./configure \
-        --prefix=${INSTALL_DIR} \
-    && make -j $(nproc) \
-    && make install
-
-
+# =============================================================================
 # Build libzip
 # https://libzip.org
-# Needed by: PHP --with-zip
-
-env VERSION_LIBZIP=1.8.0
-env LIBZIP_BUILD_DIR=${BUILD_DIR}/libzip
-
-RUN set -xe; \
-    mkdir ${LIBZIP_BUILD_DIR} \
-    && curl -s -L https://libzip.org/download/libzip-${VERSION_LIBZIP}.tar.gz \
-    | tar xzC ${LIBZIP_BUILD_DIR} --strip 1
-
-WORKDIR ${LIBZIP_BUILD_DIR}
-
-RUN set -xe; \
-    mkdir build \
-    && cd build \
-    && cmake -DCMAKE_INSTALL_PREFIX=${INSTALL_DIR} .. \
-    && make -j $(nproc) \
-    && make install
-
-
-# Build libsodium
-# https://doc.libsodium.org/
+#
+# Requires:
+#   - openssl
+#   - zlib
+#
 # Needed by:
-#   - PHP --with-sodium
+#   - php
 
-ENV VERSION_LIBSODIUM=1.0.18
-ENV LIBSODIUM_BUILD_DIR=${BUILD_DIR}/libsodium
+ENV LIBZIP_VERSION=1.9.2
+ENV LIBZIP_BUILD_DIR=${BUILD_DIR}/libzip
 
-RUN set -xe; \
-    mkdir ${LIBSODIUM_BUILD_DIR}; \
-    curl -s -L https://download.libsodium.org/libsodium/releases/libsodium-${VERSION_LIBSODIUM}-stable.tar.gz \
-    | tar xzC ${LIBSODIUM_BUILD_DIR} --strip 1
-
-WORKDIR ${LIBSODIUM_BUILD_DIR}
+WORKDIR ${LIBZIP_BUILD_DIR}/build
 
 RUN set -xe; \
-    ./configure \
-        --prefix=${INSTALL_DIR} \
-    && make -j $(nproc) \
-    && make install
+    curl -sL https://libzip.org/download/libzip-${LIBZIP_VERSION}.tar.gz \
+    | tar xzC ${LIBZIP_BUILD_DIR} --strip-components 1
+
+RUN cmake \
+    -DCMAKE_INSTALL_PREFIX=${INSTALL_DIR} \
+    -DCMAKE_BUILD_TYPE=Release \
+    # Build a shared library (.so) instead of a static one
+    -DBUILD_SHARED_LIBS=ON \
+    ..
+
+RUN make -j$(nproc) && make install
 
 
+# =============================================================================
 # Build PHP
 # https://www.php.net
+#
+# Requires:
+#   - curl
+#   - libargon2
+#   - libzip
+#   - oniguruma
+#   - openssl
+#   - pgsql
+#   - zlib
 
-ENV VERSION_PHP=8.1.5
+ENV PHP_VERSION=8.1.18
 ENV PHP_BUILD_DIR=${BUILD_DIR}/php
+ENV PHP_INI_DIR=${INSTALL_DIR}/etc/php
 
-WORKDIR ${PHP_BUILD_DIR}
-
-RUN set -xe; \
-    curl -s -L https://www.php.net/distributions/php-${VERSION_PHP}.tar.gz \
-    | tar xzC ${PHP_BUILD_DIR} --strip 1
+WORKDIR ${PHP_BUILD_DIR}/
 
 RUN set -xe; \
-    ./buildconf \
-    && PKG_CONFIG_PATH=${INSTALL_DIR}/lib64/pkgconfig:${INSTALL_DIR}/lib/pkgconfig \
+    curl -sL https://www.php.net/distributions/php-${PHP_VERSION}.tar.gz \
+    | tar xzC ${PHP_BUILD_DIR} --strip-components 1
+
+# -fstack-protector-strong: Buffer overflow protection
+# -O3: Highest level of optimization
+# -pipe: Use pipes instead of temporary files
+# -fpie: Position-independent executable
+# -ffunction-sections: Discard unused functions
+# -fdata-sections: Discard unused variables
+# --gc-sections: Remove unused sections, conjunction with -ffunction-sections and -fdata-sections
+# -D_LARGEFILE_SOURCE and -D_FILE_OFFSET_BITS=64: Support large files (https://www.php.net/manual/en/intro.filesystem.php)
+RUN CFLAGS="-fstack-protector-strong -O3 -pipe -fpie -ffunction-sections -fdata-sections -D_LARGEFILE_SOURCE -D_FILE_OFFSET_BITS=64" \
+    LDFLAGS="-Wl,-O1 -pie -Wl,--strip-all -Wl,--gc-sections" \
     ./configure \
         --prefix=${INSTALL_DIR} \
+        --enable-option-checking=fatal \
+        --with-config-file-path=${PHP_INI_DIR} \
+        --with-config-file-scan-dir=${PHP_INI_DIR}/conf.d:${FC_FUNC_CODE_PATH}/php/conf.d \
+        --disable-phpdbg \
+        --disable-cgi \
+        --enable-fpm \
         --enable-bcmath \
         --enable-exif \
+        --enable-ftp \
+        --enable-intl \
         --enable-mbstring \
-        --with-config-file-path=${INSTALL_DIR}/etc/php \
-        --with-config-file-scan-dir=${INSTALL_DIR}/etc/php/conf.d \
-        --with-curl \
+        --enable-opcache \
+        --enable-sockets \
+        --enable-pcntl \
+        --with-curl=${INSTALL_DIR} \
+        --with-iconv \
         --with-openssl \
-        --with-pdo-mysql \
+        --with-password-argon2 \
+        --with-pdo-mysql=shared,mysqlnd  \
+        --with-pdo-pgsql=shared,${INSTALL_DIR} \
+        --with-pgsql=shared \
         --with-pear \
-        --with-readline=${INSTALL_DIR} \
-        --with-sodium \
+        --with-readline=shared \
         --with-zip \
-        --with-zlib \
-    && make -j $(nproc) \
-    && make install \
-    && cp php.ini-production ${INSTALL_DIR}/etc/php/php.ini
-
-
-# Build swoole
-# https://openswoole.com
-
-ENV VERSION_SWOOLE=4.11.0
-ENV SWOOLE_BUILD_DIR=${INSTALL_DIR}/swoole
-
-WORKDIR ${SWOOLE_BUILD_DIR}
+        --with-zlib
 
 RUN set -xe; \
-    curl -sL https://github.com/openswoole/swoole-src/archive/refs/tags/v${VERSION_SWOOLE}.tar.gz \
-    | tar xzC ${SWOOLE_BUILD_DIR} --strip 1 \
-    && phpize \
-    && LDFLAGS="-L${INSTALL_DIR}/lib64 -L${INSTALL_DIR}/lib" \
-    CPPFLAGS="-I${INSTALL_DIR}/include" \
-    ./configure \
-        --prefix=${INSTALL_DIR} \
-        --enable-mysqlnd \
-        --enable-openssl \
-        --enable-swoole-curl \
-        --enable-swoole-json \
-        --with-openssl-dir=${INSTALL_DIR}/openssl \
-    && make -j $(nproc) \
-    && make install \
-    && echo "extension=openswoole" > ${INSTALL_DIR}/etc/php/conf.d/openswoole.ini
+    make -j$(nproc); \
+    make install; \
+    cp php.ini-production ${INSTALL_DIR}/etc/php/php.ini
+
+
+# =============================================================================
+# Constrct everything we need before moving to next stage
+
+RUN mkdir -p /layer \
+    /layer/bin \
+    /layer/lib \
+    /layer/lib/php/extensions \
+    /layer/etc \
+    /layer/etc/php \
+    /layer/etc/php/conf.d \
+    /layer/dew/ssl
+
+RUN set -xe; \
+    # Copy executables
+    cp ${INSTALL_DIR}/bin/php  /layer/bin/; \
+    cp ${INSTALL_DIR}/sbin/php-fpm /layer/bin/; \
+    # Copy OpenSSL configuration and CA bundle
+    cp ${INSTALL_DIR}/dew/ssl/openssl.cnf /layer/dew/ssl/; \
+    cp ${CA_BUNDLE} /layer/dew/ssl/; \
+    # Copy shared library (.so) for PHP
+    ldd ${INSTALL_DIR}/bin/php \
+        | grep ${INSTALL_DIR} \
+        | cut -d' ' -f3 \
+        | xargs -I % cp % /layer/lib/; \
+    # Copy PHP extensions
+    cp $(php -r "echo ini_get('extension_dir');")/* /layer/lib/php/extensions/; \
+    # Copy shared library (.so) for PHP extensions
+    ldd /layer/lib/php/extensions/* \
+        | grep "=> ${INSTALL_DIR}" \
+        | cut -d' ' -f3 \
+        | uniq \
+        | xargs -I % cp % /layer/lib/; \
+    # Copy PHP Configuration file
+    cp ${INSTALL_DIR}/etc/php/php.ini /layer/etc/php/; \
+    # Strip all symbols and debugging information for executables
+    find /layer -type f -executable -exec strip --strip-all '{}' + || true
+
+COPY stubs/php.ini /layer/etc/php/conf.d
+COPY stubs/php-fpm.conf /layer/etc
+
+
+# =============================================================================
+# Leave build environment behind and start with a clean image
+FROM aliyunfc/runtime-custom:1.10.8
+
+COPY --from=builder /layer /opt
+
+
+# Change directory to where the source code placed
+WORKDIR ${FC_FUNC_CODE_PATH}/
