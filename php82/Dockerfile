@@ -19,41 +19,17 @@ RUN echo "deb http://archive.debian.org/debian/ stretch main" | tee /etc/apt/sou
 
 # Install dependencies
 # libicu57 and libicu-dev: PHP intl extension requires ICU library
+# libpq*: needed by PHP pgsql extension
 RUN apt-get update && \
-    apt-get install --allow-downgrades -y libicu57=57.1-6+deb9u4 libicu-dev && \
+    apt-get install --allow-downgrades -y \
+        libicu57=57.1-6+deb9u4 libicu-dev \
+        libpq5=9.6.17-0+deb9u1 libpq-dev && \
     rm -rf /var/lib/apt/lists/*
 
 # Prepare directories
 RUN mkdir -p ${INSTALL_DIR} \
     ${INSTALL_DIR}/etc/php \
     ${INSTALL_DIR}/etc/php/conf.d
-
-
-# =============================================================================
-# Build PostgreSQL
-# https://www.postgresql.org
-#
-# Needed by:
-#   - php
-
-ENV PGSQL_VERSION=15.2
-ENV PGSQL_BUILD_DIR=${BUILD_DIR}/pgsql
-
-WORKDIR ${PGSQL_BUILD_DIR}/
-
-RUN set -xe; \
-    curl -sL https://ftp.postgresql.org/pub/source/v${PGSQL_VERSION}/postgresql-${PGSQL_VERSION}.tar.gz \
-    | tar xzC ${PGSQL_BUILD_DIR} --strip-components 1
-
-RUN CFLAGS="-I${INSTALL_DIR}/include -O2 -pipe" \
-    LDFLAGS="-L${INSTALL_DIR}/lib" \
-   ./configure \
-       --prefix=${INSTALL_DIR} \
-       --without-readline
-
-RUN make -j$(nproc) && \
-    make -C src/include install && \
-    make -C src/interfaces install
 
 
 # =============================================================================
