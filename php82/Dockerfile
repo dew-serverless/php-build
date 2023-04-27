@@ -18,7 +18,7 @@ ENV PKG_CONFIG_PATH=${INSTALL_DIR}/lib64/pkgconfig:${INSTALL_DIR}/lib/pkgconfig:
 RUN echo "deb http://archive.debian.org/debian/ stretch main" | tee /etc/apt/sources.list
 
 # Install dependencies
-# libicu57 and libicu-dev: PHP intl extension requires ICU library
+# libicu*: needed by PHP intl extension
 # libpq*: needed by PHP pgsql extension
 RUN apt-get update && \
     apt-get install --allow-downgrades -y \
