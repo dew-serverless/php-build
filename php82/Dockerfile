@@ -207,28 +207,6 @@ RUN make -j$(nproc) && make install
 
 
 # =============================================================================
-# Build libsqlite
-# https://www.sqlite.org
-#
-# Needed by:
-#   - php
-
-ENV LIBSQLITE_BUILD_DIR=${BUILD_DIR}/libsqlite
-
-WORKDIR ${LIBSQLITE_BUILD_DIR}/
-
-RUN set -xe; \
-    curl -sL https://www.sqlite.org/2023/sqlite-autoconf-3410200.tar.gz \
-    | tar xzC ${LIBSQLITE_BUILD_DIR} --strip-components 1
-
-RUN CFLAGS="-Os" \
-    ./configure \
-        --prefix=${INSTALL_DIR}
-
-RUN make -j$(nproc) && make install
-
-
-# =============================================================================
 # Build libargon2
 # https://github.com/P-H-C/phc-winner-argon2
 #
