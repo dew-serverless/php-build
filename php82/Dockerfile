@@ -316,7 +316,7 @@ RUN CFLAGS="-fstack-protector-strong -O3 -pipe -fpie -ffunction-sections -fdata-
         --with-zip \
         --with-zlib
 
-RUN set xe; \
+RUN set -xe; \
     make -j$(nproc); \
     make install; \
     cp php.ini-production ${INSTALL_DIR}/etc/php/php.ini
