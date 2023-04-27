@@ -6,7 +6,7 @@ FROM aliyunfc/runtime-custom:build-1.10.8 as builder
 ENV BUILD_DIR=/tmp/build
 
 # Define a directory for installation
-ENV INSTALL_DIR=/opt/dew
+ENV INSTALL_DIR=/opt
 
 # Configure environment variables
 ENV PKG_CONFIG_PATH=${INSTALL_DIR}/lib64/pkgconfig:${INSTALL_DIR}/lib/pkgconfig:${INSTALL_DIR}/lib/x86_64-linux-gnu/pkgconfig \
@@ -413,7 +413,7 @@ COPY stubs/php-fpm.conf /layer/etc
 # Leave build environment behind and start with a clean image
 FROM aliyunfc/runtime-custom:1.10.8
 
-COPY --from=builder /layer /opt/dew
+COPY --from=builder /layer /opt
 
 
 # Change directory to where the source code placed
