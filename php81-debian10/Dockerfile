@@ -1,6 +1,6 @@
 # Build upon Function Compute custom runtime build environment
 # See: https://help.aliyun.com/document_detail/132044.html
-FROM aliyunfc/runtime-custom.debian10:build-1.10.8 as builder
+FROM aliyunfc/runtime-custom.debian10:build-1.10.9 as builder
 
 # Define a directory for building
 ENV BUILD_DIR=/tmp/build

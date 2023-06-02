@@ -1,6 +1,6 @@
 # Build upon Function Compute custom runtime build environment
 # See: https://help.aliyun.com/document_detail/132044.html
-FROM aliyunfc/runtime-custom:build-1.10.8 as builder
+FROM aliyunfc/runtime-custom:build-1.10.9 as builder
 
 # Define a directory for building
 ENV BUILD_DIR=/tmp/build
@@ -13,17 +13,11 @@ ENV PKG_CONFIG_PATH=${INSTALL_DIR}/lib64/pkgconfig:${INSTALL_DIR}/lib/pkgconfig:
     LD_LIBRARY_PATH=${INSTALL_DIR}/lib64:${INSTALL_DIR}/lib:${INSTALL_DIR}/lib/x86_64-linux-gnu \
     PATH=${INSTALL_DIR}/bin:$PATH
 
-# The image is based on Debian 9 (stretch) which is now being archived
-# We need to change the source list to use archive.debian.org
-RUN echo "deb http://archive.debian.org/debian/ stretch main" | tee /etc/apt/sources.list
-
 # Install dependencies
-# libicu*: needed by PHP intl extension
-# libpq*: needed by PHP pgsql extension
+# libicu: needed by PHP intl extension
+# libpq: needed by PHP pgsql extension
 RUN apt-get update && \
-    apt-get install --allow-downgrades -y \
-        libicu57=57.1-6+deb9u4 libicu-dev \
-        libpq5=9.6.17-0+deb9u1 libpq-dev && \
+    apt-get install -y libicu-dev libpq-dev && \
     rm -rf /var/lib/apt/lists/*
 
 # Prepare directories
