@@ -384,10 +384,6 @@ COPY stubs/php-fpm.conf /layer/etc
 
 # =============================================================================
 # Leave build environment behind and start with a clean image
-FROM aliyunfc/runtime-custom:1.10.9
+FROM debian:stretch as clean
 
 COPY --from=builder /layer /opt
-
-
-# Change directory to where the source code placed
-WORKDIR ${FC_FUNC_CODE_PATH}/
