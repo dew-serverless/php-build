@@ -385,6 +385,8 @@ COPY stubs/php-fpm.conf /layer/etc
 
 # =============================================================================
 # Leave build environment behind and start with a clean image
+FROM ghcr.io/roadrunner-server/roadrunner:2023.1.4 AS roadrunner
 FROM debian:stretch as clean
 
 COPY --from=builder /layer /opt
+COPY --from=roadrunner /usr/bin/rr /opt/bin/rr

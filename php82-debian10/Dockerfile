@@ -338,10 +338,11 @@ COPY stubs/php-fpm.conf /layer/etc
 
 # =============================================================================
 # Leave build environment behind and start with a clean image
+FROM ghcr.io/roadrunner-server/roadrunner:2023.1.4 AS roadrunner
 FROM aliyunfc/runtime-custom.debian10:${RUNTIME_VERSION} as clean
 
 COPY --from=builder /layer /opt
-
+COPY --from=roadrunner /usr/bin/rr /opt/bin/rr
 
 # Change directory to where the source code placed
 WORKDIR ${FC_FUNC_CODE_PATH}/
