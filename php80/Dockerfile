@@ -381,6 +381,8 @@ RUN set -xe; \
 
 COPY stubs/php.ini /layer/etc/php/conf.d
 COPY stubs/php-fpm.conf /layer/etc
+COPY stubs/bootstrap /layer
+COPY stubs/.rr.yaml /layer
 
 
 # =============================================================================

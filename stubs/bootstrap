@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+
+rr serve \
+  -c /opt/.rr.yaml \
+  -w ${FC_FUNC_CODE_PATH:-/code}

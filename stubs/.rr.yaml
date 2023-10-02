@@ -1,0 +1,8 @@
+version: '3'
+
+server:
+  command: "php runtime.php"
+  user: "nobody"
+
+http:
+  address: 0.0.0.0:${FC_CUSTOM_LISTEN_PORT:-9000}
