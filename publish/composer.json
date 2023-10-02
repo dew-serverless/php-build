@@ -1,0 +1,6 @@
+{
+    "require": {
+        "aliyuncs/oss-sdk-php": "^2.6",
+        "alibabacloud/fc-open-20210406": "^2.0"
+    }
+}

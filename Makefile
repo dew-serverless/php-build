@@ -1,5 +1,3 @@
-OSS_BUCKET=
-
 OBJECTS = php80 php81 php82
 VARIANTS = $(OBJECTS) $(addsuffix -debian10,$(OBJECTS))
 
@@ -17,10 +15,7 @@ export/%:
 export: $(addprefix export/,$(VARIANTS))
 
 publish-%: export/%
-	aliyun oss cp export/$*.zip oss://$(OSS_BUCKET)/$*.zip
-	aliyun fc-open CreateLayerVersion \
-		--layerName $* \
-		--body "{\"Code\":{\"ossBucketName\":\"$(OSS_BUCKET)\",\"ossObjectName\":\"$*.zip\"},\"compatibleRuntime\":[\"$(if $(findstring -debian10,$*),custom.debian10,custom)\"]}"
+	php publish/publish.php $*
 
 publish: $(addprefix publish-,$(VARIANTS))
 
