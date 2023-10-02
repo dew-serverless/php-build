@@ -288,7 +288,7 @@ RUN set -xe; \
 #   - pgsql
 #   - zlib
 
-ENV PHP_VERSION=8.0.28
+ENV PHP_VERSION=8.0.30
 ENV PHP_BUILD_DIR=${BUILD_DIR}/php
 ENV PHP_INI_DIR=${INSTALL_DIR}/etc/php
 
