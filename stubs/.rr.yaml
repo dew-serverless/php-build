@@ -6,3 +6,5 @@ server:
 
 http:
   address: 0.0.0.0:${FC_CUSTOM_LISTEN_PORT:-9000}
+  pool:
+    num_workers: 1
