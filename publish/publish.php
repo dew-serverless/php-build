@@ -2,8 +2,9 @@
 
 require_once __DIR__.'/vendor/autoload.php';
 
-use AlibabaCloud\SDK\FCOpen\V20210406\FCOpen;
-use AlibabaCloud\SDK\FCOpen\V20210406\Models\CreateLayerVersionRequest;
+use AlibabaCloud\SDK\FC\V20230330\FC;
+use AlibabaCloud\SDK\FC\V20230330\Models\CreateLayerVersionRequest;
+use AlibabaCloud\Tea\Model;
 use Darabonba\OpenApi\Models\Config;
 use OSS\OssClient;
 
@@ -85,23 +86,35 @@ foreach ($regions as $region) {
 
     $oss->uploadFile($bucketName, $objectName, $runtimePath);
 
-    print "- Release layer to region {$region}\n";
-
-    $fc = new FCOpen(new Config([
+    $fc = new FC(new Config([
         'accessKeyId' => $accessKeyId,
         'accessKeySecret' => $accessKeySecret,
         'endpoint' => sprintf('%s.%s.fc.aliyuncs.com', $accountId, $region),
     ]));
 
+    print "- Release layer to region {$region}\n";
+
     $fc->createLayerVersion($runtime, new CreateLayerVersionRequest([
-        'compatibleRuntime' => [
-            str_contains($runtime, '-debian10') ? 'custom.debian10' : 'custom',
-        ],
-        'code' => [
-            'ossBucketName' => $bucketName,
-            'ossObjectName' => $objectName,
+        'body' => [
+            'code' => [
+                'ossBucketName' => $bucketName,
+                'ossObjectName' => $objectName,
+            ],
+            'compatibleRuntime' => [
+                str_contains($runtime, '-debian10') ? 'custom.debian10' : 'custom',
+            ],
+            'license' => 'MIT',
         ],
     ]));
+
+    print "- Ensure layer is public in {$region}\n";
+
+    $fc->putLayerACL($runtime, new class extends Model {
+        public string $public = 'true';
+
+        // intentionally set because of the SDK bug
+        public string $public_ = 'true';
+    });
 }
 
 print "- Publish done\n";
