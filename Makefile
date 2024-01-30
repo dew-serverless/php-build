@@ -1,4 +1,4 @@
-OBJECTS = php80 php81 php82
+OBJECTS = php80 php81 php82 php83
 VARIANTS = $(OBJECTS) $(addsuffix -debian10,$(OBJECTS))
 
 .PHONY: build export publish clean
