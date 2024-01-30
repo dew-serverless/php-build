@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "adcd44905efcf6c8e6bbfff31318d6fa",
+    "content-hash": "190c52792dc9d5f1667b424e36ea2418",
     "packages": [
         {
             "name": "adbario/php-dot-notation",
@@ -225,6 +225,49 @@
                 "source": "https://github.com/alibabacloud-sdk-php/endpoint-util/tree/0.1.1"
             },
             "time": "2020-06-04T10:57:15+00:00"
+        },
+        {
+            "name": "alibabacloud/fc-20230330",
+            "version": "3.0.2",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/alibabacloud-sdk-php/fc-20230330.git",
+                "reference": "4c9d63b97d60e91b22bf96cf8c24f16a35870eab"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/alibabacloud-sdk-php/fc-20230330/zipball/4c9d63b97d60e91b22bf96cf8c24f16a35870eab",
+                "reference": "4c9d63b97d60e91b22bf96cf8c24f16a35870eab",
+                "shasum": ""
+            },
+            "require": {
+                "alibabacloud/darabonba-openapi": "^0.2.8",
+                "alibabacloud/endpoint-util": "^0.1.0",
+                "alibabacloud/openapi-util": "^0.1.10|^0.2.1",
+                "alibabacloud/tea-utils": "^0.2.19",
+                "php": ">5.5"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "AlibabaCloud\\SDK\\FC\\V20230330\\": "src"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "Apache-2.0"
+            ],
+            "authors": [
+                {
+                    "name": "Alibaba Cloud SDK",
+                    "email": "sdk-team@alibabacloud.com"
+                }
+            ],
+            "description": "Alibaba Cloud Function Compute (20230330) SDK Library for PHP",
+            "support": {
+                "source": "https://github.com/alibabacloud-sdk-php/fc-20230330/tree/3.0.2"
+            },
+            "time": "2023-10-26T17:13:12+00:00"
         },
         {
             "name": "alibabacloud/fc-open-20210406",
