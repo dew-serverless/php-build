@@ -57,6 +57,31 @@ RUN curl -sL -o ${CA_BUNDLE} ${CA_BUNDLE_SOURCE}
 
 
 # =============================================================================
+# Build zlib
+# https://zlib.net
+#
+# Needed by:
+#   - libssh2
+#   - php
+
+ENV ZLIB_VERSION=1.3.1
+ENV ZLIB_BUILD_DIR=${BUILD_DIR}/zlib
+
+WORKDIR ${ZLIB_BUILD_DIR}/
+
+RUN set -xe; \
+    curl -sL https://zlib.net/zlib-${ZLIB_VERSION}.tar.gz \
+        | tar xzC ${ZLIB_BUILD_DIR} --strip-components 1
+
+RUN CFLAGS="-I${INSTALL_DIR}/include -O3 -pipe" \
+    LDFLAGS="-L${INSTALL_DIR}/lib" \
+    ./configure \
+        --prefix=${INSTALL_DIR}
+
+RUN make -j$(nproc) install
+
+
+# =============================================================================
 # Build libssh2
 # https://www.libssh2.org
 #
