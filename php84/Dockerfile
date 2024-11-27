@@ -14,17 +14,61 @@ ENV PKG_CONFIG_PATH=${INSTALL_DIR}/lib64/pkgconfig:${INSTALL_DIR}/lib/pkgconfig:
     LD_LIBRARY_PATH=${INSTALL_DIR}/lib64:${INSTALL_DIR}/lib:${INSTALL_DIR}/lib/x86_64-linux-gnu \
     PATH=${INSTALL_DIR}/bin:$PATH
 
-# Install dependencies
-# libicu: needed by PHP intl extension
-# libpq: needed by PHP pgsql extension
-RUN apt-get update && \
-    apt-get install -y libicu-dev libpq-dev && \
-    rm -rf /var/lib/apt/lists/*
-
 # Prepare directories
 RUN mkdir -p ${INSTALL_DIR} \
     ${INSTALL_DIR}/etc/php \
     ${INSTALL_DIR}/etc/php/conf.d
+
+
+# =============================================================================
+# Build icu4c
+# https://github.com/unicode-org/icu
+#
+# Needed by:
+#   - php (--enable-intl)
+
+ENV ICU4C_VERSION=73.2
+ENV ICU4C_BUILD_DIR=${BUILD_DIR}/icu4c
+
+WORKDIR ${ICU4C_BUILD_DIR}/source
+
+RUN set -xe; \
+    curl -sL https://github.com/unicode-org/icu/releases/download/release-$(echo $ICU4C_VERSION | sed 's/\./-/g')/icu4c-$(echo $ICU4C_VERSION | sed 's/\./_/g')-src.tgz \
+    | tar xzC ${ICU4C_BUILD_DIR} --strip-components 1
+
+RUN CFLAGS="-O3 -pipe" \
+    ./configure \
+        --prefix=${INSTALL_DIR}
+
+RUN set -xe; \
+    make -j$(nproc); \
+    make install
+
+
+# =============================================================================
+# Build PostgreSQL
+# https://www.postgresql.org
+#
+# Needed by:
+#   - php
+
+ENV PGSQL_VERSION=15.3
+ENV PGSQL_BUILD_DIR=${BUILD_DIR}/pgsql
+
+WORKDIR ${PGSQL_BUILD_DIR}/
+
+RUN set -xe; \
+    curl -sL https://ftp.postgresql.org/pub/source/v${PGSQL_VERSION}/postgresql-${PGSQL_VERSION}.tar.gz \
+    | tar xzC ${PGSQL_BUILD_DIR} --strip-components 1
+
+RUN CFLAGS="-O2 -pipe" \
+    ./configure --prefix=${INSTALL_DIR}
+
+RUN set -xe; \
+    make -j$(nproc); \
+    make -C src/bin install; \
+    make -C src/include install; \
+    make -C src/interfaces install
 
 
 # =============================================================================
