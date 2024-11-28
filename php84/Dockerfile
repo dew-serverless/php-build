@@ -1,7 +1,7 @@
 # Build upon Function Compute custom runtime build environment
 # See: https://help.aliyun.com/document_detail/132044.html
-ARG RUNTIME_VERSION=1.10.9
-FROM aliyunfc/runtime-custom:build-${RUNTIME_VERSION} as builder
+ARG RUNTIME_VERSION
+FROM aliyunfc/runtime-custom:build-${RUNTIME_VERSION} AS builder
 
 # Define a directory for building
 ENV BUILD_DIR=/tmp/build
@@ -33,7 +33,7 @@ RUN mkdir -p ${INSTALL_DIR} \
 # Needed by:
 #   - php (--enable-intl)
 
-ENV ICU4C_VERSION=73.2
+ARG ICU4C_VERSION
 ENV ICU4C_BUILD_DIR=${BUILD_DIR}/icu4c
 
 WORKDIR ${ICU4C_BUILD_DIR}/source
@@ -58,7 +58,7 @@ RUN set -xe; \
 # Needed by:
 #   - php
 
-ENV LIBSQLITE3_VERSION=3.47.1
+ARG LIBSQLITE3_VERSION
 ENV LIBSQLITE3_BUILD_DIR=${BUILD_DIR}/libsqlite3
 
 WORKDIR ${LIBSQLITE3_BUILD_DIR}/
@@ -83,7 +83,7 @@ RUN set -xe; \
 # Needed by:
 #   - php
 
-ENV PGSQL_VERSION=15.3
+ARG PGSQL_VERSION
 ENV PGSQL_BUILD_DIR=${BUILD_DIR}/pgsql
 
 WORKDIR ${PGSQL_BUILD_DIR}/
@@ -109,7 +109,7 @@ RUN set -xe; \
 # Needed by:
 #  - curl
 
-ENV OPENSSL_VERSION=3.0.8
+ARG OPENSSL_VERSION
 ENV OPENSSL_BUILD_DIR=${BUILD_DIR}/openssl
 ENV CA_BUNDLE_SOURCE="https://curl.se/ca/cacert.pem"
 ENV CA_BUNDLE=${INSTALL_DIR}/dew/ssl/cert.pem
@@ -139,7 +139,7 @@ RUN curl -sL -o ${CA_BUNDLE} ${CA_BUNDLE_SOURCE}
 #   - libssh2
 #   - php
 
-ENV ZLIB_VERSION=1.3.1
+ARG ZLIB_VERSION
 ENV ZLIB_BUILD_DIR=${BUILD_DIR}/zlib
 
 WORKDIR ${ZLIB_BUILD_DIR}/
@@ -164,7 +164,7 @@ RUN make -j$(nproc) install
 #   - OpenSSL
 #   - zlib
 
-ENV LIBSSH2_VERSION=1.10.0
+ARG LIBSSH2_VERSION
 ENV LIBSSH2_BUILD_DIR=${BUILD_DIR}/libssh2
 
 WORKDIR ${LIBSSH2_BUILD_DIR}/bin
@@ -194,7 +194,7 @@ RUN cmake --build . --target install
 # Needed by:
 #   - curl
 
-ENV NGHTTP2_VERSION=1.52.0
+ARG NGHTTP2_VERSION
 ENV NGHTTP2_BUILD_DIR=${BUILD_DIR}/nghttp2
 
 WORKDIR ${NGHTTP2_BUILD_DIR}/
@@ -225,7 +225,7 @@ RUN make -j$(nproc) install-strip
 # Needed by:
 #   - php (--with-curl)
 
-ENV CURL_VERSION=7.88.1
+ARG CURL_VERSION
 ENV CURL_BUILD_DIR=${BUILD_DIR}/curl
 
 WORKDIR ${CURL_BUILD_DIR}/
@@ -261,7 +261,7 @@ RUN make -j$(nproc) && make install
 # Needed by:
 #  - php (--enable-mbstring)
 
-ENV ONIG_VERSION=6.9.8
+ARG ONIG_VERSION
 ENV ONIG_BUILD_DIR=${BUILD_DIR}/onig
 
 WORKDIR ${ONIG_BUILD_DIR}/
@@ -284,7 +284,7 @@ RUN make -j$(nproc) && make install
 # Needed by:
 #   - php
 
-ENV LIBXML2_VERSION=2.10.3
+ARG LIBXML2_VERSION
 ENV LIBXML2_BUILD_DIR=${BUILD_DIR}/libxml2
 
 WORKDIR ${LIBXML2_BUILD_DIR}/
@@ -308,7 +308,7 @@ RUN make -j$(nproc) && make install
 # Needed by:
 #   - php
 
-ENV LIBARGON2_VERSION=20190702
+ARG LIBARGON2_VERSION
 ENV LIBARGON2_BUILD_DIR=${BUILD_DIR}/libargon2
 
 WORKDIR ${LIBARGON2_BUILD_DIR}/
@@ -331,7 +331,7 @@ RUN make install PREFIX=${INSTALL_DIR}
 # Needed by:
 #   - php
 
-ENV LIBZIP_VERSION=1.9.2
+ARG LIBZIP_VERSION
 ENV LIBZIP_BUILD_DIR=${BUILD_DIR}/libzip
 
 WORKDIR ${LIBZIP_BUILD_DIR}/build
@@ -363,7 +363,7 @@ RUN make -j$(nproc) && make install
 #   - pgsql
 #   - zlib
 
-ENV PHP_VERSION=8.4.1
+ARG PHP_VERSION
 ENV PHP_BUILD_DIR=${BUILD_DIR}/php
 ENV PHP_INI_DIR=${INSTALL_DIR}/etc/php
 
@@ -463,7 +463,7 @@ COPY stubs/.rr.yaml /layer
 # =============================================================================
 # Leave build environment behind and start with a clean image
 FROM ghcr.io/roadrunner-server/roadrunner:2023.1.4 AS roadrunner
-FROM debian:stretch as clean
+FROM debian:stretch AS clean
 
 COPY --from=builder /layer /opt
 COPY --from=roadrunner /usr/bin/rr /opt/bin/rr

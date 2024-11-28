@@ -4,7 +4,8 @@ VARIANTS = $(OBJECTS) $(addsuffix -debian10,$(OBJECTS))
 .PHONY: build export publish clean
 
 build-%:
-	docker build -t dew/$* -f $*/Dockerfile .
+	BUILD_ARGS=$$(awk '/^[a-zA-Z0-9]+ *=/ { printf "--build-arg %s_VERSION=%s ", toupper($$1), $$3 }' $*/dependencies.ini | xargs) \
+	&& docker build $$BUILD_ARGS -t dew/$* -f $*/Dockerfile .
 
 build: $(addprefix build-,$(VARIANTS))
 
