@@ -1,7 +1,7 @@
 # Build upon Function Compute custom runtime build environment
 # See: https://help.aliyun.com/document_detail/132044.html
 ARG RUNTIME_VERSION
-FROM aliyunfc/runtime-custom.debian10:build-${RUNTIME_VERSION} as builder
+FROM aliyunfc/runtime-custom.debian10:build-${RUNTIME_VERSION} AS builder
 
 # Define a directory for building
 ENV BUILD_DIR=/tmp/build
@@ -341,7 +341,7 @@ COPY stubs/.rr.yaml /layer
 # =============================================================================
 # Leave build environment behind and start with a clean image
 FROM ghcr.io/roadrunner-server/roadrunner:2023.1.4 AS roadrunner
-FROM aliyunfc/runtime-custom.debian10:${RUNTIME_VERSION} as clean
+FROM aliyunfc/runtime-custom.debian10:${RUNTIME_VERSION} AS clean
 
 COPY --from=builder /layer /opt
 COPY --from=roadrunner /usr/bin/rr /opt/bin/rr
