@@ -14,6 +14,12 @@ ENV PKG_CONFIG_PATH=${INSTALL_DIR}/lib64/pkgconfig:${INSTALL_DIR}/lib/pkgconfig:
     LD_LIBRARY_PATH=${INSTALL_DIR}/lib64:${INSTALL_DIR}/lib:${INSTALL_DIR}/lib/x86_64-linux-gnu \
     PATH=${INSTALL_DIR}/bin:$PATH
 
+# Install dependencies
+# tclsh: needed by libsqlite3 to build the amalgamation from canonical source code
+RUN apt-get update && \
+    apt-get install -y tclsh && \
+    rm -rf /var/lib/apt/lists/*
+
 # Prepare directories
 RUN mkdir -p ${INSTALL_DIR} \
     ${INSTALL_DIR}/etc/php \
@@ -42,6 +48,31 @@ RUN CFLAGS="-O3 -pipe" \
 
 RUN set -xe; \
     make -j$(nproc); \
+    make install
+
+
+# =============================================================================
+# Build libsqlite3
+# https://www.sqlite.org
+#
+# Needed by:
+#   - php
+
+ENV LIBSQLITE3_VERSION=3.47.1
+ENV LIBSQLITE3_BUILD_DIR=${BUILD_DIR}/libsqlite3
+
+WORKDIR ${LIBSQLITE3_BUILD_DIR}/
+
+RUN set -xe; \
+    curl -sL https://sqlite.org/src/tarball/version-${LIBSQLITE3_VERSION}/sqlite.tar.gz \
+    | tar xzC ${LIBSQLITE3_BUILD_DIR} --strip-components 1
+
+RUN CFLAGS="-O2 -pipe" \
+    ./configure \
+        --prefix=${INSTALL_DIR}
+
+RUN set -xe; \
+    make -j$(nproc) sqlite3.c; \
     make install
 
 
