@@ -263,7 +263,7 @@ RUN make -j$(nproc) && make install
 #   - pgsql
 #   - zlib
 
-ARG PHP_VERSION=8.2.15
+ARG PHP_VERSION
 ENV PHP_BUILD_DIR=${BUILD_DIR}/php
 ENV PHP_INI_DIR=${INSTALL_DIR}/etc/php
 
