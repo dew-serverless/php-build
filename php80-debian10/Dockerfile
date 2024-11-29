@@ -1,6 +1,6 @@
 # Build upon Function Compute custom runtime build environment
 # See: https://help.aliyun.com/document_detail/132044.html
-ARG RUNTIME_VERSION
+ARG RUNTIME_VERSION=latest
 FROM aliyunfc/runtime-custom.debian10:build-${RUNTIME_VERSION} AS builder
 
 # Define a directory for building
