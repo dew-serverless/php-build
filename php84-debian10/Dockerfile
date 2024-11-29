@@ -17,8 +17,9 @@ ENV PKG_CONFIG_PATH=${INSTALL_DIR}/lib64/pkgconfig:${INSTALL_DIR}/lib/pkgconfig:
 # Install dependencies
 # camke: libzip uses cmake to build
 # libicu-dev: PHP intl extension requires ICU library
+# libunistring-dev: needed by libpsl to handle Unicode manipulation
 RUN apt-get update && \
-    apt-get install -y cmake libicu-dev && \
+    apt-get install -y cmake libicu-dev libunistring-dev && \
     rm -rf /var/lib/apt/lists/*
 
 # Prepare directories
@@ -111,6 +112,30 @@ RUN CFLAGS="-I${INSTALL_DIR}/include -O2 -pipe" \
         --enable-lib-only
 
 RUN make -j$(nproc) install
+
+
+# =============================================================================
+# Build libpsl
+# https://github.com/rockdaboot/libpsl
+#
+# Needed by
+#   - curl
+
+ARG LIBPSL_VERSION
+ENV LIBPSL_BUILD_DIR=${BUILD_DIR}/libpsl
+
+WORKDIR ${LIBPSL_BUILD_DIR}/
+
+RUN set -xe; \
+    curl -sL https://github.com/rockdaboot/libpsl/releases/download/${LIBPSL_VERSION}/libpsl-${LIBPSL_VERSION}.tar.gz \
+    | tar xzC ${LIBPSL_BUILD_DIR} --strip-components 1
+
+RUN CFLAGS="-I${INSTALL_DIR}/include -O2 -pipe" \
+    LDFLAGS="-L${INSTALL_DIR}/lib" \
+    ./configure \
+        --prefix=${INSTALL_DIR}
+
+RUN make -j$(nproc) && make install
 
 
 # =============================================================================
