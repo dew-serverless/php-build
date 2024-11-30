@@ -209,6 +209,31 @@ RUN make -j$(nproc) && make install
 
 
 # =============================================================================
+# Build libxml2
+# https://gitlab.gnome.org/GNOME/libxml2
+#
+# Needed by:
+#   - php
+
+ARG LIBXML2_VERSION
+ENV LIBXML2_BUILD_DIR=${BUILD_DIR}/libxml2
+
+WORKDIR ${LIBXML2_BUILD_DIR}/
+
+RUN set -xe; \
+    curl -sL https://download.gnome.org/sources/libxml2/$(echo $LIBXML2_VERSION | cut -d'.' -f-2)/libxml2-${LIBXML2_VERSION}.tar.xz \
+    | tar xJC ${LIBXML2_BUILD_DIR} --strip-components 1
+
+RUN CFLAGS='-O2 -pipe -fno-semantic-interposition' \
+   ./configure \
+       --prefix=${INSTALL_DIR} \
+       --without-debug \
+       --without-python
+
+RUN make -j$(nproc) && make install
+
+
+# =============================================================================
 # Build libargon2
 # https://github.com/P-H-C/phc-winner-argon2
 #
