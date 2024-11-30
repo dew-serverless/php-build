@@ -1,7 +1,6 @@
-# Build upon Function Compute custom runtime build environment
-# See: https://help.aliyun.com/document_detail/132044.html
-ARG RUNTIME_VERSION=latest
-FROM aliyunfc/runtime-custom.debian10:build-${RUNTIME_VERSION} AS builder
+# Build upon Function Compute custom.debian10 runtime
+# See: https://www.alibabacloud.com/help/en/functioncompute/fc-3-0/user-guide/overview-10-2
+FROM debian:10 AS builder
 
 # Define a directory for building
 ENV BUILD_DIR=/tmp/build
@@ -16,14 +15,24 @@ ENV PKG_CONFIG_PATH=${INSTALL_DIR}/lib64/pkgconfig:${INSTALL_DIR}/lib/pkgconfig 
 
 # Install dependencies
 # camke: libzip uses cmake to build
-# tclsh: needed by libsqlite3 to build the amalgamation from canonical source code
-# libicu-dev: PHP intl extension requires ICU library
-# libunistring-dev: needed by libpsl to handle Unicode manipulation
 # libbison-dev: needed by libpg to build parser files (gram.c and gram.h)
 # libfl-dev: needed by libpg to build parser files (gram.c and gram.h)
-RUN apt-get update && \
-    apt-get install -y cmake tclsh libicu-dev libunistring-dev libbison-dev libfl-dev && \
-    rm -rf /var/lib/apt/lists/*
+# libicu-dev: PHP intl extension requires ICU library
+# libunistring-dev: needed by libpsl to handle Unicode manipulation
+# python3: needed by libpsl to convert the public suffix list
+# tclsh: needed by libsqlite3 to build the amalgamation from canonical source code
+RUN apt-get update && apt-get install -y \
+    build-essential \
+    cmake \
+    curl \
+    libbison-dev \
+    libfl-dev \
+    libicu-dev \
+    libreadline-dev \
+    libunistring-dev \
+    python3 \
+    tclsh \
+    && rm -rf /var/lib/apt/lists/*
 
 # Prepare directories
 RUN mkdir -p ${INSTALL_DIR} \
@@ -82,6 +91,32 @@ RUN set -xe; \
 
 
 # =============================================================================
+# Build zlib
+# https://zlib.net
+#
+# Needed by:
+#   - libpq
+#   - libssh2
+#   - php
+
+ARG ZLIB_VERSION
+ENV ZLIB_BUILD_DIR=${BUILD_DIR}/zlib
+
+WORKDIR ${ZLIB_BUILD_DIR}/
+
+RUN set -xe; \
+    curl -sL https://zlib.net/zlib-${ZLIB_VERSION}.tar.gz \
+        | tar xzC ${ZLIB_BUILD_DIR} --strip-components 1
+
+RUN CFLAGS="-I${INSTALL_DIR}/include -O3 -pipe" \
+    LDFLAGS="-L${INSTALL_DIR}/lib" \
+    ./configure \
+        --prefix=${INSTALL_DIR}
+
+RUN make -j$(nproc) install
+
+
+# =============================================================================
 # Build PostgreSQL
 # https://www.postgresql.org
 #
@@ -97,8 +132,10 @@ RUN set -xe; \
     curl -sL https://ftp.postgresql.org/pub/source/v${PGSQL_VERSION}/postgresql-${PGSQL_VERSION}.tar.gz \
     | tar xzC ${PGSQL_BUILD_DIR} --strip-components 1
 
-RUN CFLAGS="-O2 -pipe" \
-    ./configure --prefix=${INSTALL_DIR}
+RUN CFLAGS="-I${INSTALL_DIR}/include -O2 -pipe" \
+    LDFLAGS="-L${INSTALL_DIR}/lib" \
+    ./configure \
+        --prefix=${INSTALL_DIR}
 
 RUN set -xe; \
     make -j$(nproc); \
