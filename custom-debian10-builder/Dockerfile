@@ -16,10 +16,11 @@ ENV PKG_CONFIG_PATH=${INSTALL_DIR}/lib64/pkgconfig:${INSTALL_DIR}/lib/pkgconfig 
 
 # Install dependencies
 # camke: libzip uses cmake to build
+# tclsh: needed by libsqlite3 to build the amalgamation from canonical source code
 # libicu-dev: PHP intl extension requires ICU library
 # libunistring-dev: needed by libpsl to handle Unicode manipulation
 RUN apt-get update && \
-    apt-get install -y cmake libicu-dev libunistring-dev && \
+    apt-get install -y cmake tclsh libicu-dev libunistring-dev && \
     rm -rf /var/lib/apt/lists/*
 
 # Prepare directories
@@ -50,6 +51,31 @@ RUN CFLAGS="-O3 -pipe" \
 
 RUN set -xe; \
     make -j$(nproc); \
+    make install
+
+
+# =============================================================================
+# Build libsqlite3
+# https://www.sqlite.org
+#
+# Needed by:
+#   - php
+
+ARG LIBSQLITE3_VERSION
+ENV LIBSQLITE3_BUILD_DIR=${BUILD_DIR}/libsqlite3
+
+WORKDIR ${LIBSQLITE3_BUILD_DIR}/
+
+RUN set -xe; \
+    curl -sL https://sqlite.org/src/tarball/version-${LIBSQLITE3_VERSION}/sqlite.tar.gz \
+    | tar xzC ${LIBSQLITE3_BUILD_DIR} --strip-components 1
+
+RUN CFLAGS="-O2 -pipe" \
+    ./configure \
+        --prefix=${INSTALL_DIR}
+
+RUN set -xe; \
+    make -j$(nproc) sqlite3.c; \
     make install
 
 
