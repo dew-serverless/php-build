@@ -29,6 +29,31 @@ RUN mkdir -p ${INSTALL_DIR} \
 
 
 # =============================================================================
+# Build icu4c
+# https://github.com/unicode-org/icu
+#
+# Needed by:
+#   - php (--enable-intl)
+
+ARG ICU4C_VERSION
+ENV ICU4C_BUILD_DIR=${BUILD_DIR}/icu4c
+
+WORKDIR ${ICU4C_BUILD_DIR}/source
+
+RUN set -xe; \
+    curl -sL https://github.com/unicode-org/icu/releases/download/release-$(echo $ICU4C_VERSION | sed 's/\./-/g')/icu4c-$(echo $ICU4C_VERSION | sed 's/\./_/g')-src.tgz \
+    | tar xzC ${ICU4C_BUILD_DIR} --strip-components 1
+
+RUN CFLAGS="-O3 -pipe" \
+    ./configure \
+        --prefix=${INSTALL_DIR}
+
+RUN set -xe; \
+    make -j$(nproc); \
+    make install
+
+
+# =============================================================================
 # Build OpenSSL
 # https://www.openssl.org
 #
