@@ -80,6 +80,32 @@ RUN set -xe; \
 
 
 # =============================================================================
+# Build PostgreSQL
+# https://www.postgresql.org
+#
+# Needed by:
+#   - php
+
+ARG PGSQL_VERSION
+ENV PGSQL_BUILD_DIR=${BUILD_DIR}/pgsql
+
+WORKDIR ${PGSQL_BUILD_DIR}/
+
+RUN set -xe; \
+    curl -sL https://ftp.postgresql.org/pub/source/v${PGSQL_VERSION}/postgresql-${PGSQL_VERSION}.tar.gz \
+    | tar xzC ${PGSQL_BUILD_DIR} --strip-components 1
+
+RUN CFLAGS="-O2 -pipe" \
+    ./configure --prefix=${INSTALL_DIR}
+
+RUN set -xe; \
+    make -j$(nproc); \
+    make -C src/bin install; \
+    make -C src/include install; \
+    make -C src/interfaces install
+
+
+# =============================================================================
 # Build OpenSSL
 # https://www.openssl.org
 #
