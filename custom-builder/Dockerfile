@@ -16,8 +16,10 @@ ENV PKG_CONFIG_PATH=${INSTALL_DIR}/lib64/pkgconfig:${INSTALL_DIR}/lib/pkgconfig 
 
 # Install dependencies
 # tclsh: needed by libsqlite3 to build the amalgamation from canonical source code
+# libbison-dev: needed by libpg to build parser files (gram.c and gram.h)
+# libfl-dev: needed by libpg to build parser files (gram.c and gram.h)
 RUN apt-get update && \
-    apt-get install -y tclsh && \
+    apt-get install -y tclsh libbison-dev libfl-dev && \
     rm -rf /var/lib/apt/lists/*
 
 # Prepare directories
