@@ -117,3 +117,5 @@ FROM debian:9 AS clean
 
 COPY --from=builder /layer /opt
 COPY --from=roadrunner /usr/bin/rr /opt/bin/rr
+
+ENTRYPOINT ["/opt/bin/php"]

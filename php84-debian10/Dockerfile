@@ -118,5 +118,4 @@ FROM debian:10 AS clean
 COPY --from=builder /layer /opt
 COPY --from=roadrunner /usr/bin/rr /opt/bin/rr
 
-# Change directory to where the source code placed
-WORKDIR ${FC_FUNC_CODE_PATH}/
+ENTRYPOINT ["/opt/bin/php"]
