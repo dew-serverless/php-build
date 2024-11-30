@@ -160,14 +160,21 @@ RUN set -xe; \
     # Determine if the major version of OpenSSL is v1
     if [ "${OPENSSL_VERSION}" != "${OPENSSL_VERSION#1*}" ]; then \
         OPENSSL_URL="https://github.com/openssl/openssl/releases/download/OpenSSL_$(echo $OPENSSL_VERSION | tr '.' '_')/openssl-${OPENSSL_VERSION}.tar.gz"; \
-        OPENSSL_CONFIG="./config"; \
     else \
         OPENSSL_URL="https://github.com/openssl/openssl/releases/download/openssl-${OPENSSL_VERSION}/openssl-${OPENSSL_VERSION}.tar.gz"; \
+    fi; \
+    curl -sL $OPENSSL_URL \
+    | tar xzC ${OPENSSL_BUILD_DIR} --strip-components 1
+
+RUN set -xe; \
+    # Determine if the major version of OpenSSL is v1
+    if [ "${OPENSSL_VERSION}" != "${OPENSSL_VERSION#1*}" ]; then \
+        OPENSSL_CONFIG="./config"; \
+    else \
         OPENSSL_CONFIG="./Configure"; \
     fi; \
-    curl -sL $OPENSSL_URL | tar xzC ${OPENSSL_BUILD_DIR} --strip-components 1; \
+    CFLAGS="-O2 -pipe" \
     $OPENSSL_CONFIG \
-        CFLAGS="-O2 -pipe" \
         --prefix=${INSTALL_DIR} \
         --openssldir=${INSTALL_DIR}/dew/ssl \
         --release
