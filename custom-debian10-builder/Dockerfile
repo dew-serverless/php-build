@@ -19,8 +19,10 @@ ENV PKG_CONFIG_PATH=${INSTALL_DIR}/lib64/pkgconfig:${INSTALL_DIR}/lib/pkgconfig 
 # tclsh: needed by libsqlite3 to build the amalgamation from canonical source code
 # libicu-dev: PHP intl extension requires ICU library
 # libunistring-dev: needed by libpsl to handle Unicode manipulation
+# libbison-dev: needed by libpg to build parser files (gram.c and gram.h)
+# libfl-dev: needed by libpg to build parser files (gram.c and gram.h)
 RUN apt-get update && \
-    apt-get install -y cmake tclsh libicu-dev libunistring-dev && \
+    apt-get install -y cmake tclsh libicu-dev libunistring-dev libbison-dev libfl-dev && \
     rm -rf /var/lib/apt/lists/*
 
 # Prepare directories
