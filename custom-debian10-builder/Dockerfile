@@ -17,7 +17,6 @@ ENV PKG_CONFIG_PATH=${INSTALL_DIR}/lib64/pkgconfig:${INSTALL_DIR}/lib/pkgconfig 
 # camke: libzip uses cmake to build
 # libbison-dev: needed by libpg to build parser files (gram.c and gram.h)
 # libfl-dev: needed by libpg to build parser files (gram.c and gram.h)
-# libicu-dev: PHP intl extension requires ICU library
 # libunistring-dev: needed by libpsl to handle Unicode manipulation
 # python3: needed by libpsl to convert the public suffix list
 # tclsh: needed by libsqlite3 to build the amalgamation from canonical source code
@@ -27,7 +26,6 @@ RUN apt-get update && apt-get install -y \
     curl \
     libbison-dev \
     libfl-dev \
-    libicu-dev \
     libreadline-dev \
     libunistring-dev \
     python3 \
