@@ -1,4 +1,3 @@
-ARG RUNTIME_VERSION=latest
 FROM dew/custom-builder:latest AS builder
 
 # =============================================================================
@@ -114,7 +113,7 @@ COPY stubs/.rr.yaml /layer
 # =============================================================================
 # Leave build environment behind and start with a clean image
 FROM ghcr.io/roadrunner-server/roadrunner:2023.1.4 AS roadrunner
-FROM aliyunfc/runtime-custom:${RUNTIME_VERSION} AS clean
+FROM debian:9 AS clean
 
 COPY --from=builder /layer /opt
 COPY --from=roadrunner /usr/bin/rr /opt/bin/rr
