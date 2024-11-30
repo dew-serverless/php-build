@@ -56,7 +56,7 @@ RUN set -xe; \
     | tar xzC ${ICU4C_BUILD_DIR} --strip-components 1
 
 RUN CFLAGS="-O3 -pipe" \
-    ./configure \
+    ./runConfigureICU Linux \
         --prefix=${INSTALL_DIR}
 
 RUN set -xe; \
