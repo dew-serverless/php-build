@@ -28,6 +28,7 @@ RUN apt-get update && apt-get install -y \
     libfl-dev \
     libreadline-dev \
     libunistring-dev \
+    pkg-config \
     python3 \
     tclsh \
     && rm -rf /var/lib/apt/lists/*
