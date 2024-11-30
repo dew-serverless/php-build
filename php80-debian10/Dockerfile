@@ -1,4 +1,3 @@
-ARG RUNTIME_VERSION=latest
 FROM dew/custom-debian10-builder:latest AS builder
 
 # =============================================================================
