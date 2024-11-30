@@ -54,8 +54,8 @@ RUN CFLAGS="-fstack-protector-strong -O3 -pipe -fpie -ffunction-sections -fdata-
         --with-openssl \
         --with-password-argon2=${INSTALL_DIR} \
         --with-pdo-mysql=shared,mysqlnd \
-        --with-pdo-pgsql=shared \
-        --with-pgsql=shared \
+        --with-pdo-pgsql=shared,${INSTALL_DIR} \
+        --with-pgsql=shared,${INSTALL_DIR} \
         --with-pear \
         --with-readline=shared \
         --with-zip \
