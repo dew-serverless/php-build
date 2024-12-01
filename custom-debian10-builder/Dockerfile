@@ -107,8 +107,7 @@ RUN set -xe; \
     curl -sL https://zlib.net/zlib-${ZLIB_VERSION}.tar.gz \
         | tar xzC ${ZLIB_BUILD_DIR} --strip-components 1
 
-RUN CFLAGS="-I${INSTALL_DIR}/include -O3 -pipe" \
-    LDFLAGS="-L${INSTALL_DIR}/lib" \
+RUN CFLAGS="-O3 -pipe" \
     ./configure \
         --prefix=${INSTALL_DIR}
 
@@ -131,10 +130,11 @@ RUN set -xe; \
     curl -sL https://ftp.postgresql.org/pub/source/v${PGSQL_VERSION}/postgresql-${PGSQL_VERSION}.tar.gz \
     | tar xzC ${PGSQL_BUILD_DIR} --strip-components 1
 
-RUN CFLAGS="-I${INSTALL_DIR}/include -O2 -pipe" \
-    LDFLAGS="-L${INSTALL_DIR}/lib" \
+RUN CFLAGS="-O2 -pipe" \
     ./configure \
-        --prefix=${INSTALL_DIR}
+        --prefix=${INSTALL_DIR} \
+        --with-includes=${INSTALL_DIR}/include \
+        --with-libraries=${INSTALL_DIR}/lib64:${INSTALL_DIR}/lib
 
 RUN set -xe; \
     make -j$(nproc); \
@@ -232,8 +232,7 @@ RUN set -xe; \
     curl -sL https://github.com/nghttp2/nghttp2/releases/download/v${NGHTTP2_VERSION}/nghttp2-${NGHTTP2_VERSION}.tar.gz \
     | tar xzC ${NGHTTP2_BUILD_DIR} --strip-components 1
 
-RUN CFLAGS="-I${INSTALL_DIR}/include -O2 -pipe" \
-    LDFLAGS="-L${INSTALL_DIR}/lib" \
+RUN CFLAGS="-O2 -pipe" \
     ./configure \
         --prefix=${INSTALL_DIR} \
         # Build libnghttp2.so only
@@ -258,8 +257,7 @@ RUN set -xe; \
     curl -sL https://github.com/rockdaboot/libpsl/releases/download/${LIBPSL_VERSION}/libpsl-${LIBPSL_VERSION}.tar.gz \
     | tar xzC ${LIBPSL_BUILD_DIR} --strip-components 1
 
-RUN CFLAGS="-I${INSTALL_DIR}/include -O2 -pipe" \
-    LDFLAGS="-L${INSTALL_DIR}/lib" \
+RUN CFLAGS="-O2 -pipe" \
     ./configure \
         --prefix=${INSTALL_DIR}
 
@@ -287,8 +285,7 @@ RUN set -xe; \
     curl -sL https://curl.se/download/curl-${CURL_VERSION}.tar.gz \
     | tar xzC ${CURL_BUILD_DIR} --strip-components 1
 
-RUN CFLAGS="-I${INSTALL_DIR}/include -O2 -pipe" \
-    LDFLAGS="-L${INSTALL_DIR}/lib64 -L${INSTALL_DIR}/lib" \
+RUN CFLAGS="-O2 -pipe" \
     ./configure \
         --prefix=${INSTALL_DIR} \
         --with-ca-bundle=${CA_BUNDLE} \
@@ -394,8 +391,7 @@ RUN set -xe; \
     curl -sL https://libzip.org/download/libzip-${LIBZIP_VERSION}.tar.gz \
     | tar xzC ${LIBZIP_BUILD_DIR} --strip-components 1
 
-RUN CFLAGS="-I${INSTALL_DIR}/include -O2 -pipe" \
-    LDFLAGS="-L${INSTALL_DIR}/lib" \
+RUN CFLAGS="-O2 -pipe" \
     cmake \
     -DCMAKE_INSTALL_PREFIX=${INSTALL_DIR} \
     -DCMAKE_BUILD_TYPE=Release \
