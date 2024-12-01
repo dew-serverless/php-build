@@ -1,3 +1,4 @@
+ARG ROADRUNNER_VERSION=latest
 FROM dew/custom-debian10-builder:latest AS builder
 
 # =============================================================================
@@ -112,7 +113,7 @@ COPY stubs/.rr.yaml /layer
 
 # =============================================================================
 # Leave build environment behind and start with a clean image
-FROM ghcr.io/roadrunner-server/roadrunner:2023.1.4 AS roadrunner
+FROM ghcr.io/roadrunner-server/roadrunner:${ROADRUNNER_VERSION} AS roadrunner
 FROM debian:10 AS clean
 
 COPY --from=builder /layer /opt
