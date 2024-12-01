@@ -58,7 +58,6 @@ RUN CFLAGS="-fstack-protector-strong -O3 -pipe -fpie -ffunction-sections -fdata-
         --with-pdo-pgsql=shared,${INSTALL_DIR} \
         --with-pgsql=shared \
         --with-pear \
-        --with-readline=shared \
         --with-zip \
         --with-zlib
 
