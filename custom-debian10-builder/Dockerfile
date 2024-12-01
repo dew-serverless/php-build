@@ -112,20 +112,25 @@ RUN make -j$(nproc) install
 
 
 # =============================================================================
-# Build PostgreSQL
+# Build libpq
 # https://www.postgresql.org
 #
+# Requires:
+#   - libbison-dev
+#   - libfl-dev
+#   - zlib
+#
 # Needed by:
-#   - php
+#   - php (--with-pdo-pgsql, --with-pgsql)
 
-ARG PGSQL_VERSION
-ENV PGSQL_BUILD_DIR=${BUILD_DIR}/pgsql
+ARG LIBPQ_VERSION
+ENV LIBPQ_BUILD_DIR=${BUILD_DIR}/libpq
 
-WORKDIR ${PGSQL_BUILD_DIR}/
+WORKDIR ${LIBPQ_BUILD_DIR}/
 
 RUN set -xe; \
-    curl -sL https://ftp.postgresql.org/pub/source/v${PGSQL_VERSION}/postgresql-${PGSQL_VERSION}.tar.gz \
-    | tar xzC ${PGSQL_BUILD_DIR} --strip-components 1
+    curl -sL https://ftp.postgresql.org/pub/source/v${LIBPQ_VERSION}/postgresql-${LIBPQ_VERSION}.tar.gz \
+    | tar xzC ${LIBPQ_BUILD_DIR} --strip-components 1
 
 RUN CFLAGS="-O2 -pipe" \
     ./configure \

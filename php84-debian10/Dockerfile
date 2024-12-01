@@ -11,7 +11,7 @@ FROM dew/custom-debian10-builder:latest AS builder
 #   - libzip
 #   - oniguruma
 #   - openssl
-#   - pgsql
+#   - libpq
 #   - zlib
 
 ARG PHP_VERSION
