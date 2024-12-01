@@ -26,7 +26,6 @@ RUN apt-get update && apt-get install -y \
     curl \
     libbison-dev \
     libfl-dev \
-    libreadline-dev \
     libunistring-dev \
     pkg-config \
     python3 \
@@ -134,7 +133,8 @@ RUN CFLAGS="-O2 -pipe" \
     ./configure \
         --prefix=${INSTALL_DIR} \
         --with-includes=${INSTALL_DIR}/include \
-        --with-libraries=${INSTALL_DIR}/lib64:${INSTALL_DIR}/lib
+        --with-libraries=${INSTALL_DIR}/lib64:${INSTALL_DIR}/lib \
+        --without-readline
 
 RUN set -xe; \
     make -j$(nproc); \
