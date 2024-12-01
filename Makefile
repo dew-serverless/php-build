@@ -11,6 +11,16 @@ build-%:
 
 build: $(addprefix build-,$(VARIANTS))
 
+test-setup:
+	cd tests; \
+	composer install
+
+test-%:
+	cd tests; \
+	DEW_PHP_VERSION="$*" composer run test
+
+test: test-setup $(addprefix test-,$(VARIANTS))
+
 export/%:
 	CID=$$(docker create dew/$*) && docker cp $$CID:/opt ./export/$* && docker rm $$CID
 	cd export/$*; zip -r ../$*.zip .
