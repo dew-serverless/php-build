@@ -138,9 +138,8 @@ RUN CFLAGS="-O2 -pipe" \
 
 RUN set -xe; \
     make -j$(nproc); \
-    make -C src/bin install; \
     make -C src/include install; \
-    make -C src/interfaces install
+    make -C src/interfaces/libpq install
 
 
 # =============================================================================
