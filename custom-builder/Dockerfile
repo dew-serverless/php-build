@@ -1,7 +1,6 @@
-# Build upon Function Compute custom runtime build environment
-# See: https://help.aliyun.com/document_detail/132044.html
-ARG RUNTIME_VERSION=latest
-FROM aliyunfc/runtime-custom:build-${RUNTIME_VERSION} AS builder
+# Build upon Function Compute custom runtime
+# See: https://www.alibabacloud.com/help/en/functioncompute/fc-3-0/user-guide/overview-10-2
+FROM debian:9 AS builder
 
 # Define a directory for building
 ENV BUILD_DIR=/tmp/build
@@ -14,13 +13,29 @@ ENV PKG_CONFIG_PATH=${INSTALL_DIR}/lib64/pkgconfig:${INSTALL_DIR}/lib/pkgconfig 
     LD_LIBRARY_PATH=${INSTALL_DIR}/lib64:${INSTALL_DIR}/lib \
     PATH=${INSTALL_DIR}/bin:$PATH
 
+# Update APT sources since Debian 9 (stretch) was archived
+# See: https://www.debian.org/distrib/archive
+RUN tee /etc/apt/sources.list <<EOF
+deb http://archive.debian.org/debian stretch main
+deb http://archive.debian.org/debian-security stretch/updates main
+EOF
+
 # Install dependencies
-# tclsh: needed by libsqlite3 to build the amalgamation from canonical source code
+# cmake: libssh2 and libzip use cmake to build
 # libbison-dev: needed by libpg to build parser files (gram.c and gram.h)
 # libfl-dev: needed by libpg to build parser files (gram.c and gram.h)
-RUN apt-get update && \
-    apt-get install -y tclsh libbison-dev libfl-dev && \
-    rm -rf /var/lib/apt/lists/*
+# python3: needed by libpsl to convert the public suffix list
+# tclsh: needed by libsqlite3 to build the amalgamation from canonical source code
+RUN apt-get update && apt-get install -y \
+    build-essential \
+    cmake \
+    curl \
+    libbison-dev \
+    libfl-dev \
+    pkg-config \
+    python3 \
+    tclsh \
+    && rm -rf /var/lib/apt/lists/*
 
 # Prepare directories
 RUN mkdir -p ${INSTALL_DIR} \
@@ -45,7 +60,7 @@ RUN set -xe; \
     | tar xzC ${ICU4C_BUILD_DIR} --strip-components 1
 
 RUN CFLAGS="-O3 -pipe" \
-    ./configure \
+    ./runConfigureICU Linux \
         --prefix=${INSTALL_DIR}
 
 RUN set -xe; \
@@ -79,6 +94,31 @@ RUN set -xe; \
 
 
 # =============================================================================
+# Build zlib
+# https://zlib.net
+#
+# Needed by:
+#   - libpq
+#   - libssh2
+#   - php
+
+ARG ZLIB_VERSION
+ENV ZLIB_BUILD_DIR=${BUILD_DIR}/zlib
+
+WORKDIR ${ZLIB_BUILD_DIR}/
+
+RUN set -xe; \
+    curl -sL https://zlib.net/zlib-${ZLIB_VERSION}.tar.gz \
+        | tar xzC ${ZLIB_BUILD_DIR} --strip-components 1
+
+RUN CFLAGS="-O3 -pipe" \
+    ./configure \
+        --prefix=${INSTALL_DIR}
+
+RUN make -j$(nproc) install
+
+
+# =============================================================================
 # Build PostgreSQL
 # https://www.postgresql.org
 #
@@ -95,13 +135,16 @@ RUN set -xe; \
     | tar xzC ${PGSQL_BUILD_DIR} --strip-components 1
 
 RUN CFLAGS="-O2 -pipe" \
-    ./configure --prefix=${INSTALL_DIR}
+    ./configure \
+        --prefix=${INSTALL_DIR} \
+        --with-includes=${INSTALL_DIR}/include \
+        --with-libraries=${INSTALL_DIR}/lib64:${INSTALL_DIR}/lib \
+        --without-readline
 
 RUN set -xe; \
     make -j$(nproc); \
-    make -C src/bin install; \
     make -C src/include install; \
-    make -C src/interfaces install
+    make -C src/interfaces/libpq install
 
 
 # =============================================================================
@@ -147,31 +190,6 @@ RUN curl -sL -o ${CA_BUNDLE} ${CA_BUNDLE_SOURCE}
 
 
 # =============================================================================
-# Build zlib
-# https://zlib.net
-#
-# Needed by:
-#   - libssh2
-#   - php
-
-ARG ZLIB_VERSION
-ENV ZLIB_BUILD_DIR=${BUILD_DIR}/zlib
-
-WORKDIR ${ZLIB_BUILD_DIR}/
-
-RUN set -xe; \
-    curl -sL https://zlib.net/zlib-${ZLIB_VERSION}.tar.gz \
-        | tar xzC ${ZLIB_BUILD_DIR} --strip-components 1
-
-RUN CFLAGS="-I${INSTALL_DIR}/include -O3 -pipe" \
-    LDFLAGS="-L${INSTALL_DIR}/lib" \
-    ./configure \
-        --prefix=${INSTALL_DIR}
-
-RUN make -j$(nproc) install
-
-
-# =============================================================================
 # Build libssh2
 # https://www.libssh2.org
 #
@@ -186,7 +204,7 @@ WORKDIR ${LIBSSH2_BUILD_DIR}/bin
 
 RUN set -xe; \
     curl -sL https://libssh2.org/download/libssh2-${LIBSSH2_VERSION}.tar.gz \
-        | tar xzC ${LIBSSH2_BUILD_DIR} --strip-components 1
+    | tar xzC ${LIBSSH2_BUILD_DIR} --strip-components 1
 
 RUN cmake \
     -DCMAKE_BUILD_TYPE=Release \
@@ -218,14 +236,13 @@ RUN set -xe; \
     curl -sL https://github.com/nghttp2/nghttp2/releases/download/v${NGHTTP2_VERSION}/nghttp2-${NGHTTP2_VERSION}.tar.gz \
     | tar xzC ${NGHTTP2_BUILD_DIR} --strip-components 1
 
-RUN CFLAGS="-I${INSTALL_DIR}/include" \
-    LDFLAGS="-L${INSTALL_DIR}/lib" \
+RUN CFLAGS="-O2 -pipe" \
     ./configure \
         --prefix=${INSTALL_DIR} \
-        # Build libnghttp2.so only
+        # Build libnghttp2 only
         --enable-lib-only
 
-RUN make -j$(nproc) install-strip
+RUN make -j$(nproc) install
 
 
 # =============================================================================
@@ -244,8 +261,7 @@ RUN set -xe; \
     curl -sL https://github.com/rockdaboot/libpsl/releases/download/${LIBPSL_VERSION}/libpsl-${LIBPSL_VERSION}.tar.gz \
     | tar xzC ${LIBPSL_BUILD_DIR} --strip-components 1
 
-RUN CFLAGS="-I${INSTALL_DIR}/include -O2 -pipe" \
-    LDFLAGS="-L${INSTALL_DIR}/lib" \
+RUN CFLAGS="-O2 -pipe" \
     ./configure \
         --prefix=${INSTALL_DIR}
 
@@ -273,8 +289,7 @@ RUN set -xe; \
     curl -sL https://curl.se/download/curl-${CURL_VERSION}.tar.gz \
     | tar xzC ${CURL_BUILD_DIR} --strip-components 1
 
-RUN CFLAGS="-I${INSTALL_DIR}/include -O2 -pipe" \
-    LDFLAGS="-L${INSTALL_DIR}/lib" \
+RUN CFLAGS="-O2 -pipe" \
     ./configure \
         --prefix=${INSTALL_DIR} \
         --with-ca-bundle=${CA_BUNDLE} \
@@ -307,7 +322,7 @@ WORKDIR ${ONIG_BUILD_DIR}/
 
 RUN set -xe; \
     curl -sL https://github.com/kkos/oniguruma/releases/download/v${ONIG_VERSION}/onig-${ONIG_VERSION}.tar.gz \
-        | tar xzC ${ONIG_BUILD_DIR} --strip-components 1
+    | tar xzC ${ONIG_BUILD_DIR} --strip-components 1
 
 RUN CFLAGS="-O2 -pipe" \
     ./configure \
@@ -335,6 +350,7 @@ RUN set -xe; \
 RUN CFLAGS='-O2 -pipe -fno-semantic-interposition' \
    ./configure \
        --prefix=${INSTALL_DIR} \
+       --without-debug \
        --without-python
 
 RUN make -j$(nproc) && make install
@@ -379,11 +395,16 @@ RUN set -xe; \
     curl -sL https://libzip.org/download/libzip-${LIBZIP_VERSION}.tar.gz \
     | tar xzC ${LIBZIP_BUILD_DIR} --strip-components 1
 
-RUN cmake \
+RUN CFLAGS="-O2 -pipe" \
+    cmake \
     -DCMAKE_INSTALL_PREFIX=${INSTALL_DIR} \
     -DCMAKE_BUILD_TYPE=Release \
+    -DBUILD_DOC=OFF \
+    -DBUILD_EXAMPLES=OFF \
     # Build a shared library (.so) instead of a static one
     -DBUILD_SHARED_LIBS=ON \
+    # Build without binary tools (zipcmp, zipmerge, ziptool)
+    -DBUILD_TOOLS=OFF \
     ..
 
 RUN make -j$(nproc) && make install

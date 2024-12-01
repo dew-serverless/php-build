@@ -14,7 +14,7 @@ ENV PKG_CONFIG_PATH=${INSTALL_DIR}/lib64/pkgconfig:${INSTALL_DIR}/lib/pkgconfig 
     PATH=${INSTALL_DIR}/bin:$PATH
 
 # Install dependencies
-# camke: libzip uses cmake to build
+# cmake: libssh2 and libzip use cmake to build
 # libbison-dev: needed by libpg to build parser files (gram.c and gram.h)
 # libfl-dev: needed by libpg to build parser files (gram.c and gram.h)
 # libunistring-dev: needed by libpsl to handle Unicode manipulation
@@ -234,7 +234,7 @@ RUN set -xe; \
 RUN CFLAGS="-O2 -pipe" \
     ./configure \
         --prefix=${INSTALL_DIR} \
-        # Build libnghttp2.so only
+        # Build libnghttp2 only
         --enable-lib-only
 
 RUN make -j$(nproc) install
@@ -394,8 +394,12 @@ RUN CFLAGS="-O2 -pipe" \
     cmake \
     -DCMAKE_INSTALL_PREFIX=${INSTALL_DIR} \
     -DCMAKE_BUILD_TYPE=Release \
+    -DBUILD_DOC=OFF \
+    -DBUILD_EXAMPLES=OFF \
     # Build a shared library (.so) instead of a static one
     -DBUILD_SHARED_LIBS=ON \
+    # Build without binary tools (zipcmp, zipmerge, ziptool)
+    -DBUILD_TOOLS=OFF \
     ..
 
 RUN make -j$(nproc) && make install
