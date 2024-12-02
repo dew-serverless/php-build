@@ -8,6 +8,10 @@ use AlibabaCloud\Tea\Model;
 use Darabonba\OpenApi\Models\Config;
 use OSS\OssClient;
 
+// Function Compute available regions
+//
+// See: https://www.alibabacloud.com/help/zh/functioncompute/fc-3-0/product-overview/supported-regions
+// See: https://www.alibabacloud.com/help/en/functioncompute/fc-3-0/product-overview/supported-regions
 $regions = [
     'ap-northeast-1',
     'ap-northeast-2',
