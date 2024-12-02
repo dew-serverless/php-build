@@ -9,27 +9,27 @@ use Darabonba\OpenApi\Models\Config;
 use OSS\OssClient;
 
 $regions = [
-    'cn-hangzhou',
-    'cn-shanghai',
-    'cn-qingdao',
-    'cn-beijing',
-    'cn-zhangjiakou',
-    'cn-huhehaote',
-    'cn-shenzhen',
-    'cn-chengdu',
-    'cn-hongkong',
     'ap-northeast-1',
     'ap-northeast-2',
+    'ap-south-1',
     'ap-southeast-1',
     'ap-southeast-2',
     'ap-southeast-3',
     'ap-southeast-5',
     'ap-southeast-7',
-    'ap-south-1',
+    'cn-beijing',
+    'cn-chengdu',
+    'cn-hangzhou',
+    'cn-hongkong',
+    'cn-huhehaote',
+    'cn-qingdao',
+    'cn-shanghai',
+    'cn-shenzhen',
+    'cn-zhangjiakou',
     'eu-central-1',
     'eu-west-1',
-    'us-west-1',
     'us-east-1',
+    'us-west-1',
 ];
 
 $bucket = getenv('OSS_BUCKET');
