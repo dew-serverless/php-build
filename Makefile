@@ -7,7 +7,7 @@ build-%:
 	VARIANT="$(shell echo $* | sed -E 's/^php[0-9]+//')" && \
 	BUILD_ARGS="$(shell awk '/^[a-zA-Z0-9]+ *=/ { printf "--build-arg %s_VERSION=%s ", toupper($$1), $$3 }' "$*/dependencies.ini" | xargs)" && \
 	docker build $$BUILD_ARGS -t dew/custom$$VARIANT-builder -f custom$$VARIANT-builder/Dockerfile . && \
-	docker build $$BUILD_ARGS -t dew/$* -f $*/Dockerfile .
+	docker build $$BUILD_ARGS -t dew/$* -t ghcr.io/dew-serverless/php:$(subst php,,$*) -f $*/Dockerfile .
 
 build: $(addprefix build-,$(VARIANTS))
 
@@ -31,6 +31,11 @@ publish-%: export/%
 	php publish/publish.php $*
 
 publish: $(addprefix publish-,$(VARIANTS))
+
+push-%: build-%
+	docker push ghcr.io/dew-serverless/php:$(subst php,,$*)
+
+push: $(addprefix push-,$(VARIANTS))
 
 clean:
 	rm -rf ./export/php*
