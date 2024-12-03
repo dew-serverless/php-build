@@ -6,7 +6,7 @@ use AlibabaCloud\SDK\FC\V20230330\FC;
 use AlibabaCloud\SDK\FC\V20230330\Models\CreateLayerVersionRequest;
 use AlibabaCloud\Tea\Model;
 use Darabonba\OpenApi\Models\Config;
-use OSS\OssClient;
+use Dew\Acs\Oss\OssClient;
 
 // Function Compute available regions
 //
@@ -64,29 +64,59 @@ if (! file_exists($runtimePath)) {
     exit(1);
 }
 
+function createOssClient(string $key, string $secret, string $region): OssClient
+{
+    return new OssClient([
+        'credentials' => [
+            'key' => $key,
+            'secret' => $secret,
+        ],
+        'region' => $region,
+    ]);
+}
+
+function fileExists(OssClient $client, string $bucket, string $object, string $filename): bool
+{
+    try {
+        $client->headObject([
+            'bucket' => $bucket,
+            'key' => $object,
+            'If-Match' => strtoupper(md5_file($filename)),
+        ]);
+
+        return true;
+    } catch (Throwable) {
+        return false;
+    }
+}
+
+function fileUpload(OssClient $client, string $bucket, string $object, string $filename): void
+{
+    $client->putObject([
+        'bucket' => $bucket,
+        'key' => $object,
+        'body' => file_get_contents($filename),
+    ]);
+}
+
 print "# Process {$runtime} runtime\n";
 
 foreach ($regions as $region) {
     $bucketName = $bucket.'-'.$region;
 
-    $oss = new OssClient($accessKeyId, $accessKeySecret, sprintf('oss-%s.aliyuncs.com', $region));
+    $oss = createOssClient($accessKeyId, $accessKeySecret, $region);
 
-    if ($oss->doesObjectExist($bucketName, $objectName)) {
-        $object = $oss->getSimplifiedObjectMeta($bucketName, $objectName);
-
-        $remoteEtag = strtolower(trim($object['etag'], '"'));
-        $localEtag = md5_file($runtimePath);
-
-        if ($remoteEtag === $localEtag) {
-            print "! The runtime has been deployed to region {$region}\n";
-
-            continue;
-        }
+    if (fileExists($oss, $bucketName, $objectName, $runtimePath)) {
+        print "- Layer uploaded to region {$region}\n";
+    } else {
+        print "- Upload layer to region {$region}\n";
+        fileUpload($oss, $bucketName, $objectName, $runtimePath);
     }
 
-    print "- Upload layer to region {$region}\n";
-
-    $oss->uploadFile($bucketName, $objectName, $runtimePath);
+    // Instead of partially uploading the layer package one step at a time,
+    // we load the full contents of the file into memory, since each one
+    // is about 50MiB, we force garbage collection and free up memory.
+    gc_collect_cycles();
 
     $fc = new FC(new Config([
         'accessKeyId' => $accessKeyId,
