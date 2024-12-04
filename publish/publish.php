@@ -2,10 +2,7 @@
 
 require_once __DIR__.'/vendor/autoload.php';
 
-use AlibabaCloud\SDK\FC\V20230330\FC;
-use AlibabaCloud\SDK\FC\V20230330\Models\CreateLayerVersionRequest;
-use AlibabaCloud\Tea\Model;
-use Darabonba\OpenApi\Models\Config;
+use Dew\Acs\Fc\FcClient;
 use Dew\Acs\Oss\OssClient;
 
 // Function Compute available regions
@@ -75,6 +72,18 @@ function createOssClient(string $key, string $secret, string $region): OssClient
     ]);
 }
 
+function createFcClient(string $key, string $secret, string $region): FcClient
+{
+    return new FcClient([
+        'credentials' => [
+            'key' => $key,
+            'secret' => $secret,
+        ],
+        'region' => $region,
+        'endpoint' => sprintf('fcv3.%s.aliyuncs.com', $region),
+    ]);
+}
+
 function fileExists(OssClient $client, string $bucket, string $object, string $filename): bool
 {
     try {
@@ -99,12 +108,79 @@ function fileUpload(OssClient $client, string $bucket, string $object, string $f
     ]);
 }
 
+function fileChecksum(string $filename): int
+{
+    $contents = file_get_contents($filename);
+
+    return Crc64::make($contents);
+}
+
+function layerExists(FcClient $client, string $runtime, string $checksum): bool
+{
+    $data = $client->listLayers([
+        'prefix' => $runtime,
+        'limit' => 1,
+        'official' => 'false', // A type of string by API definition
+    ])->getDecodedData();
+
+    if ($data['layers'] === []) {
+        return false;
+    }
+
+    if ($data['layers'][0]['codeChecksum'] !== $checksum) {
+        return false;
+    }
+
+    return true;
+}
+
+function layerUpload(FcClient $client, string $runtime, string $bucket, string $object): void
+{
+    $client->createLayerVersion([
+        'layerName' => $runtime,
+        'body' => [
+            'code' => [
+                'ossBucketName' => $bucket,
+                'ossObjectName' => $object,
+            ],
+            'compatibleRuntime' => [
+                getRuntimeFromLayerName($runtime),
+            ],
+            'license' => 'MIT',
+        ],
+    ]);
+}
+
+function layerEnsureIsPublic(FcClient $client, string $runtime): void
+{
+    $client->putLayerACL([
+        'layerName' => $runtime,
+
+        // Allowed values:
+        // '0': private (default)
+        // '1': public
+        'acl' => '1',
+    ]);
+}
+
+function getRuntimeFromLayerName(string $layerName): string
+{
+    return match (true) {
+        str_ends_with($layerName, '-debian11') => 'custom.debian11',
+        str_ends_with($layerName, '-debian10') => 'custom.debian10',
+        default => 'custom',
+    };
+}
+
 print "# Process {$runtime} runtime\n";
+
+$checksum = fileChecksum($runtimePath);
 
 foreach ($regions as $region) {
     $bucketName = $bucket.'-'.$region;
 
     $oss = createOssClient($accessKeyId, $accessKeySecret, $region);
+    $fc = createFcClient($accessKeyId, $accessKeySecret, $region);
 
     if (fileExists($oss, $bucketName, $objectName, $runtimePath)) {
         print "- Layer uploaded to region {$region}\n";
@@ -118,35 +194,15 @@ foreach ($regions as $region) {
     // is about 50MiB, we force garbage collection and free up memory.
     gc_collect_cycles();
 
-    $fc = new FC(new Config([
-        'accessKeyId' => $accessKeyId,
-        'accessKeySecret' => $accessKeySecret,
-        'endpoint' => sprintf('%s.%s.fc.aliyuncs.com', $accountId, $region),
-    ]));
-
-    print "- Release layer to region {$region}\n";
-
-    $fc->createLayerVersion($runtime, new CreateLayerVersionRequest([
-        'body' => [
-            'code' => [
-                'ossBucketName' => $bucketName,
-                'ossObjectName' => $objectName,
-            ],
-            'compatibleRuntime' => [
-                str_contains($runtime, '-debian10') ? 'custom.debian10' : 'custom',
-            ],
-            'license' => 'MIT',
-        ],
-    ]));
+    if (layerExists($fc, $runtime, $checksum)) {
+        print "- Layer released to region {$region}\n";
+    } else {
+        print "- Release layer to region {$region}\n";
+        layerUpload($fc, $runtime, $bucketName, $objectName);
+    }
 
     print "- Ensure layer is public in {$region}\n";
-
-    $fc->putLayerACL($runtime, new class extends Model {
-        public string $public = 'true';
-
-        // intentionally set because of the SDK bug
-        public string $public_ = 'true';
-    });
+    layerEnsureIsPublic($fc, $runtime);
 }
 
 print "- Publish done\n";

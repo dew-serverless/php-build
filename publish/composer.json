@@ -6,6 +6,11 @@
         "php-http/guzzle7-adapter": "^1.1",
         "guzzlehttp/guzzle": "^7.0"
     },
+    "autoload": {
+        "files": [
+            "Crc64.php"
+        ]
+    },
     "config": {
         "allow-plugins": {
             "php-http/discovery": true
