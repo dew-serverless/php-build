@@ -42,23 +42,31 @@ $runtimePath = __DIR__.'/../export/'.$runtime.'.zip';
 $objectName = $runtime.'.zip';
 
 if (! $bucket) {
-    print "Expect OSS bucket.\n";
-    exit(1);
+    fatal('Expect the base name of OSS bucket');
 }
 
 if (! ($accessKeyId && $accessKeySecret && $accountId)) {
-    print "Expect ACS credentials.\n";
-    exit(1);
+    fatal('Expect ACS credentials');
 }
 
 if (! $runtime) {
-    print "Expect runtime name.\n";
-    exit(1);
+    fatal('Expect runtime name, e.g. php84-debian11');
 }
 
 if (! file_exists($runtimePath)) {
-    print "Missing runtime layer file.\n";
+    fatal('The runtime layer package is missing');
+}
+
+function fatal(string $message): void
+{
+    printf('[!] %s'.PHP_EOL, $message);
+
     exit(1);
+}
+
+function step(string $message): void
+{
+    printf('[-] %s'.PHP_EOL, $message);
 }
 
 function createOssClient(string $key, string $secret, string $region): OssClient
@@ -172,7 +180,7 @@ function getRuntimeFromLayerName(string $layerName): string
     };
 }
 
-print "# Process {$runtime} runtime\n";
+step("Process {$runtime} runtime");
 
 $checksum = fileChecksum($runtimePath);
 
@@ -183,9 +191,9 @@ foreach ($regions as $region) {
     $fc = createFcClient($accessKeyId, $accessKeySecret, $region);
 
     if (fileExists($oss, $bucketName, $objectName, $runtimePath)) {
-        print "- Layer uploaded to region {$region}\n";
+        step("Upload layer to region {$region} (exists)");
     } else {
-        print "- Upload layer to region {$region}\n";
+        step("Upload layer to region {$region}");
         fileUpload($oss, $bucketName, $objectName, $runtimePath);
     }
 
@@ -195,14 +203,14 @@ foreach ($regions as $region) {
     gc_collect_cycles();
 
     if (layerExists($fc, $runtime, $checksum)) {
-        print "- Layer released to region {$region}\n";
+        step("Release layer to region {$region} (exists)");
     } else {
-        print "- Release layer to region {$region}\n";
+        step("Release layer to region {$region}");
         layerUpload($fc, $runtime, $bucketName, $objectName);
     }
 
-    print "- Ensure layer is public in {$region}\n";
+    step("Ensure layer is public in {$region}");
     layerEnsureIsPublic($fc, $runtime);
 }
 
-print "- Publish done\n";
+step('Publish is done');
