@@ -141,7 +141,7 @@ function layerExists(FcClient $client, string $runtime, string $checksum): bool
     return true;
 }
 
-function layerUpload(FcClient $client, string $runtime, string $bucket, string $object): void
+function layerPublish(FcClient $client, string $runtime, string $bucket, string $object): void
 {
     $client->createLayerVersion([
         'layerName' => $runtime,
@@ -205,7 +205,7 @@ foreach ($regions as $region) {
         step("Release layer to region {$region} (exists)");
     } else {
         step("Release layer to region {$region}");
-        layerUpload($fc, $runtime, $bucketName, $objectName);
+        layerPublish($fc, $runtime, $bucketName, $objectName);
     }
 
     step("Ensure layer is public in {$region}");
