@@ -35,7 +35,6 @@ $bucket = getenv('OSS_BUCKET');
 
 $accessKeyId = getenv('ACS_ACCESS_KEY_ID');
 $accessKeySecret = getenv('ACS_ACCESS_KEY_SECRET');
-$accountId = getenv('ACS_ACCOUNT_ID');
 
 $runtime = $argv[1] ?? null;
 $runtimePath = __DIR__.'/../export/'.$runtime.'.zip';
@@ -45,7 +44,7 @@ if (! $bucket) {
     fatal('Expect the base name of OSS bucket');
 }
 
-if (! ($accessKeyId && $accessKeySecret && $accountId)) {
+if (! ($accessKeyId && $accessKeySecret)) {
     fatal('Expect ACS credentials');
 }
 
