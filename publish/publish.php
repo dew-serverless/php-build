@@ -2,119 +2,214 @@
 
 require_once __DIR__.'/vendor/autoload.php';
 
-use AlibabaCloud\SDK\FC\V20230330\FC;
-use AlibabaCloud\SDK\FC\V20230330\Models\CreateLayerVersionRequest;
-use AlibabaCloud\Tea\Model;
-use Darabonba\OpenApi\Models\Config;
-use OSS\OssClient;
+use Dew\Acs\Fc\FcClient;
+use Dew\Acs\Oss\OssClient;
 
+// Function Compute available regions
+//
+// See: https://www.alibabacloud.com/help/zh/functioncompute/fc-3-0/product-overview/supported-regions
+// See: https://www.alibabacloud.com/help/en/functioncompute/fc-3-0/product-overview/supported-regions
 $regions = [
-    'cn-hangzhou',
-    'cn-shanghai',
-    'cn-qingdao',
-    'cn-beijing',
-    'cn-zhangjiakou',
-    'cn-huhehaote',
-    'cn-shenzhen',
-    'cn-chengdu',
-    'cn-hongkong',
     'ap-northeast-1',
     'ap-northeast-2',
     'ap-southeast-1',
-    'ap-southeast-2',
     'ap-southeast-3',
     'ap-southeast-5',
     'ap-southeast-7',
-    'ap-south-1',
+    'cn-beijing',
+    'cn-chengdu',
+    'cn-hangzhou',
+    'cn-hongkong',
+    'cn-huhehaote',
+    'cn-qingdao',
+    'cn-shanghai',
+    'cn-shenzhen',
+    'cn-zhangjiakou',
     'eu-central-1',
     'eu-west-1',
-    'us-west-1',
     'us-east-1',
+    'us-west-1',
 ];
 
 $bucket = getenv('OSS_BUCKET');
 
 $accessKeyId = getenv('ACS_ACCESS_KEY_ID');
 $accessKeySecret = getenv('ACS_ACCESS_KEY_SECRET');
-$accountId = getenv('ACS_ACCOUNT_ID');
 
 $runtime = $argv[1] ?? null;
 $runtimePath = __DIR__.'/../export/'.$runtime.'.zip';
 $objectName = $runtime.'.zip';
 
 if (! $bucket) {
-    print "Expect OSS bucket.\n";
-    exit(1);
+    fatal('Expect the base name of OSS bucket');
 }
 
-if (! ($accessKeyId && $accessKeySecret && $accountId)) {
-    print "Expect ACS credentials.\n";
-    exit(1);
+if (! ($accessKeyId && $accessKeySecret)) {
+    fatal('Expect ACS credentials');
 }
 
 if (! $runtime) {
-    print "Expect runtime name.\n";
-    exit(1);
+    fatal('Expect runtime name, e.g. php84-debian11');
 }
 
 if (! file_exists($runtimePath)) {
-    print "Missing runtime layer file.\n";
+    fatal('The runtime layer package is missing');
+}
+
+function fatal(string $message): void
+{
+    printf('[!] %s'.PHP_EOL, $message);
+
     exit(1);
 }
 
-print "# Process {$runtime} runtime\n";
+function step(string $message): void
+{
+    printf('[-] %s'.PHP_EOL, $message);
+}
+
+function createOssClient(string $key, string $secret, string $region): OssClient
+{
+    return new OssClient([
+        'credentials' => [
+            'key' => $key,
+            'secret' => $secret,
+        ],
+        'region' => $region,
+    ]);
+}
+
+function createFcClient(string $key, string $secret, string $region): FcClient
+{
+    return new FcClient([
+        'credentials' => [
+            'key' => $key,
+            'secret' => $secret,
+        ],
+        'region' => $region,
+        'endpoint' => sprintf('fcv3.%s.aliyuncs.com', $region),
+    ]);
+}
+
+function fileExists(OssClient $client, string $bucket, string $object, string $filename): bool
+{
+    try {
+        $client->headObject([
+            'bucket' => $bucket,
+            'key' => $object,
+            'If-Match' => strtoupper(md5_file($filename)),
+        ]);
+
+        return true;
+    } catch (Throwable) {
+        return false;
+    }
+}
+
+function fileUpload(OssClient $client, string $bucket, string $object, string $filename): void
+{
+    $client->putObject([
+        'bucket' => $bucket,
+        'key' => $object,
+        'body' => file_get_contents($filename),
+    ]);
+}
+
+function fileChecksum(string $filename): int
+{
+    $contents = file_get_contents($filename);
+
+    return Crc64::make($contents);
+}
+
+function layerExists(FcClient $client, string $runtime, string $checksum): bool
+{
+    $data = $client->listLayers([
+        'prefix' => $runtime,
+        'limit' => 1,
+        'official' => 'false', // A type of string by API definition
+    ])->getDecodedData();
+
+    if ($data['layers'] === []) {
+        return false;
+    }
+
+    if ($data['layers'][0]['codeChecksum'] !== $checksum) {
+        return false;
+    }
+
+    return true;
+}
+
+function layerPublish(FcClient $client, string $runtime, string $bucket, string $object): void
+{
+    $client->createLayerVersion([
+        'layerName' => $runtime,
+        'body' => [
+            'code' => [
+                'ossBucketName' => $bucket,
+                'ossObjectName' => $object,
+            ],
+            'compatibleRuntime' => [
+                getRuntimeFromLayerName($runtime),
+            ],
+            'license' => 'MIT',
+        ],
+    ]);
+}
+
+function layerEnsureIsPublic(FcClient $client, string $runtime): void
+{
+    $client->putLayerACL([
+        'layerName' => $runtime,
+
+        // Allowed values:
+        // '0': private (default)
+        // '1': public
+        'acl' => '1',
+    ]);
+}
+
+function getRuntimeFromLayerName(string $layerName): string
+{
+    return match (true) {
+        str_ends_with($layerName, '-debian11') => 'custom.debian11',
+        str_ends_with($layerName, '-debian10') => 'custom.debian10',
+        default => 'custom',
+    };
+}
+
+step("Process {$runtime} runtime");
+
+$checksum = fileChecksum($runtimePath);
 
 foreach ($regions as $region) {
     $bucketName = $bucket.'-'.$region;
 
-    $oss = new OssClient($accessKeyId, $accessKeySecret, sprintf('oss-%s.aliyuncs.com', $region));
+    $oss = createOssClient($accessKeyId, $accessKeySecret, $region);
+    $fc = createFcClient($accessKeyId, $accessKeySecret, $region);
 
-    if ($oss->doesObjectExist($bucketName, $objectName)) {
-        $object = $oss->getSimplifiedObjectMeta($bucketName, $objectName);
-
-        $remoteEtag = strtolower(trim($object['etag'], '"'));
-        $localEtag = md5_file($runtimePath);
-
-        if ($remoteEtag === $localEtag) {
-            print "! The runtime has been deployed to region {$region}\n";
-
-            continue;
-        }
+    if (fileExists($oss, $bucketName, $objectName, $runtimePath)) {
+        step("Upload layer to region {$region} (exists)");
+    } else {
+        step("Upload layer to region {$region}");
+        fileUpload($oss, $bucketName, $objectName, $runtimePath);
     }
 
-    print "- Upload layer to region {$region}\n";
+    // Instead of partially uploading the layer package one step at a time,
+    // we load the full contents of the file into memory, since each one
+    // is about 50MiB, we force garbage collection and free up memory.
+    gc_collect_cycles();
 
-    $oss->uploadFile($bucketName, $objectName, $runtimePath);
+    if (layerExists($fc, $runtime, $checksum)) {
+        step("Release layer to region {$region} (exists)");
+    } else {
+        step("Release layer to region {$region}");
+        layerPublish($fc, $runtime, $bucketName, $objectName);
+    }
 
-    $fc = new FC(new Config([
-        'accessKeyId' => $accessKeyId,
-        'accessKeySecret' => $accessKeySecret,
-        'endpoint' => sprintf('%s.%s.fc.aliyuncs.com', $accountId, $region),
-    ]));
-
-    print "- Release layer to region {$region}\n";
-
-    $fc->createLayerVersion($runtime, new CreateLayerVersionRequest([
-        'body' => [
-            'code' => [
-                'ossBucketName' => $bucketName,
-                'ossObjectName' => $objectName,
-            ],
-            'compatibleRuntime' => [
-                str_contains($runtime, '-debian10') ? 'custom.debian10' : 'custom',
-            ],
-            'license' => 'MIT',
-        ],
-    ]));
-
-    print "- Ensure layer is public in {$region}\n";
-
-    $fc->putLayerACL($runtime, new class extends Model {
-        public string $public = 'true';
-
-        // intentionally set because of the SDK bug
-        public string $public_ = 'true';
-    });
+    step("Ensure layer is public in {$region}");
+    layerEnsureIsPublic($fc, $runtime);
 }
 
-print "- Publish done\n";
+step('Publish is done');

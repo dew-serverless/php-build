@@ -4,531 +4,35 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "27d6bb9c713a622f66dd77baa55d2312",
+    "content-hash": "52f2a9d391668a15e3d3df43f254724b",
     "packages": [
         {
-            "name": "adbario/php-dot-notation",
-            "version": "2.5.0",
+            "name": "clue/stream-filter",
+            "version": "v1.7.0",
             "source": {
                 "type": "git",
-                "url": "https://github.com/adbario/php-dot-notation.git",
-                "reference": "081e2cca50c84bfeeea2e3ef9b2c8d206d80ccae"
+                "url": "https://github.com/clue/stream-filter.git",
+                "reference": "049509fef80032cb3f051595029ab75b49a3c2f7"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/adbario/php-dot-notation/zipball/081e2cca50c84bfeeea2e3ef9b2c8d206d80ccae",
-                "reference": "081e2cca50c84bfeeea2e3ef9b2c8d206d80ccae",
-                "shasum": ""
-            },
-            "require": {
-                "ext-json": "*",
-                "php": "^5.5 || ^7.0 || ^8.0"
-            },
-            "require-dev": {
-                "phpunit/phpunit": "^4.8|^5.7|^6.6|^7.5|^8.5|^9.5",
-                "squizlabs/php_codesniffer": "^3.6"
-            },
-            "type": "library",
-            "autoload": {
-                "files": [
-                    "src/helpers.php"
-                ],
-                "psr-4": {
-                    "Adbar\\": "src"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "Riku Särkinen",
-                    "email": "riku@adbar.io"
-                }
-            ],
-            "description": "PHP dot notation access to arrays",
-            "homepage": "https://github.com/adbario/php-dot-notation",
-            "keywords": [
-                "ArrayAccess",
-                "dotnotation"
-            ],
-            "support": {
-                "issues": "https://github.com/adbario/php-dot-notation/issues",
-                "source": "https://github.com/adbario/php-dot-notation/tree/2.5.0"
-            },
-            "time": "2022-10-14T20:31:46+00:00"
-        },
-        {
-            "name": "alibabacloud/credentials",
-            "version": "1.1.5",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/aliyun/credentials-php.git",
-                "reference": "1d8383ceef695974a88a3859c42e235fd2e3981a"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/aliyun/credentials-php/zipball/1d8383ceef695974a88a3859c42e235fd2e3981a",
-                "reference": "1d8383ceef695974a88a3859c42e235fd2e3981a",
-                "shasum": ""
-            },
-            "require": {
-                "adbario/php-dot-notation": "^2.2",
-                "alibabacloud/tea": "^3.0",
-                "ext-curl": "*",
-                "ext-json": "*",
-                "ext-libxml": "*",
-                "ext-mbstring": "*",
-                "ext-openssl": "*",
-                "ext-simplexml": "*",
-                "ext-xmlwriter": "*",
-                "guzzlehttp/guzzle": "^6.3|^7.0",
-                "php": ">=5.6"
-            },
-            "require-dev": {
-                "composer/composer": "^1.8",
-                "drupal/coder": "^8.3",
-                "ext-dom": "*",
-                "ext-pcre": "*",
-                "ext-sockets": "*",
-                "ext-spl": "*",
-                "mikey179/vfsstream": "^1.6",
-                "monolog/monolog": "^1.24",
-                "phpunit/phpunit": "^5.7|^6.6|^7.5",
-                "psr/cache": "^1.0",
-                "symfony/dotenv": "^3.4",
-                "symfony/var-dumper": "^3.4"
-            },
-            "suggest": {
-                "ext-sockets": "To use client-side monitoring"
-            },
-            "type": "library",
-            "autoload": {
-                "psr-4": {
-                    "AlibabaCloud\\Credentials\\": "src"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "Apache-2.0"
-            ],
-            "authors": [
-                {
-                    "name": "Alibaba Cloud SDK",
-                    "email": "sdk-team@alibabacloud.com",
-                    "homepage": "http://www.alibabacloud.com"
-                }
-            ],
-            "description": "Alibaba Cloud Credentials for PHP",
-            "homepage": "https://www.alibabacloud.com/",
-            "keywords": [
-                "alibaba",
-                "alibabacloud",
-                "aliyun",
-                "client",
-                "cloud",
-                "credentials",
-                "library",
-                "sdk",
-                "tool"
-            ],
-            "support": {
-                "issues": "https://github.com/aliyun/credentials-php/issues",
-                "source": "https://github.com/aliyun/credentials-php"
-            },
-            "time": "2023-04-11T02:12:12+00:00"
-        },
-        {
-            "name": "alibabacloud/darabonba-openapi",
-            "version": "0.2.9",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/alibabacloud-sdk-php/darabonba-openapi.git",
-                "reference": "4cdfc36615f345786d668dfbaf68d9a301b6dbe2"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/alibabacloud-sdk-php/darabonba-openapi/zipball/4cdfc36615f345786d668dfbaf68d9a301b6dbe2",
-                "reference": "4cdfc36615f345786d668dfbaf68d9a301b6dbe2",
-                "shasum": ""
-            },
-            "require": {
-                "alibabacloud/credentials": "^1.1",
-                "alibabacloud/gateway-spi": "^1",
-                "alibabacloud/openapi-util": "^0.1.10|^0.2.1",
-                "alibabacloud/tea-utils": "^0.2.17",
-                "alibabacloud/tea-xml": "^0.2",
-                "php": ">5.5"
-            },
-            "type": "library",
-            "autoload": {
-                "psr-4": {
-                    "Darabonba\\OpenApi\\": "src"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "Apache-2.0"
-            ],
-            "authors": [
-                {
-                    "name": "Alibaba Cloud SDK",
-                    "email": "sdk-team@alibabacloud.com"
-                }
-            ],
-            "description": "Alibaba Cloud OpenApi Client",
-            "support": {
-                "issues": "https://github.com/alibabacloud-sdk-php/darabonba-openapi/issues",
-                "source": "https://github.com/alibabacloud-sdk-php/darabonba-openapi/tree/0.2.9"
-            },
-            "time": "2023-02-06T12:02:21+00:00"
-        },
-        {
-            "name": "alibabacloud/endpoint-util",
-            "version": "0.1.1",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/alibabacloud-sdk-php/endpoint-util.git",
-                "reference": "f3fe88a25d8df4faa3b0ae14ff202a9cc094e6c5"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/alibabacloud-sdk-php/endpoint-util/zipball/f3fe88a25d8df4faa3b0ae14ff202a9cc094e6c5",
-                "reference": "f3fe88a25d8df4faa3b0ae14ff202a9cc094e6c5",
-                "shasum": ""
-            },
-            "require": {
-                "php": ">5.5"
-            },
-            "require-dev": {
-                "phpunit/phpunit": "^4.8.35|^5.4.3"
-            },
-            "type": "library",
-            "autoload": {
-                "psr-4": {
-                    "AlibabaCloud\\Endpoint\\": "src"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "Apache-2.0"
-            ],
-            "authors": [
-                {
-                    "name": "Alibaba Cloud SDK",
-                    "email": "sdk-team@alibabacloud.com"
-                }
-            ],
-            "description": "Alibaba Cloud Endpoint Library for PHP",
-            "support": {
-                "source": "https://github.com/alibabacloud-sdk-php/endpoint-util/tree/0.1.1"
-            },
-            "time": "2020-06-04T10:57:15+00:00"
-        },
-        {
-            "name": "alibabacloud/fc-20230330",
-            "version": "3.0.2",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/alibabacloud-sdk-php/fc-20230330.git",
-                "reference": "4c9d63b97d60e91b22bf96cf8c24f16a35870eab"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/alibabacloud-sdk-php/fc-20230330/zipball/4c9d63b97d60e91b22bf96cf8c24f16a35870eab",
-                "reference": "4c9d63b97d60e91b22bf96cf8c24f16a35870eab",
-                "shasum": ""
-            },
-            "require": {
-                "alibabacloud/darabonba-openapi": "^0.2.8",
-                "alibabacloud/endpoint-util": "^0.1.0",
-                "alibabacloud/openapi-util": "^0.1.10|^0.2.1",
-                "alibabacloud/tea-utils": "^0.2.19",
-                "php": ">5.5"
-            },
-            "type": "library",
-            "autoload": {
-                "psr-4": {
-                    "AlibabaCloud\\SDK\\FC\\V20230330\\": "src"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "Apache-2.0"
-            ],
-            "authors": [
-                {
-                    "name": "Alibaba Cloud SDK",
-                    "email": "sdk-team@alibabacloud.com"
-                }
-            ],
-            "description": "Alibaba Cloud Function Compute (20230330) SDK Library for PHP",
-            "support": {
-                "source": "https://github.com/alibabacloud-sdk-php/fc-20230330/tree/3.0.2"
-            },
-            "time": "2023-10-26T17:13:12+00:00"
-        },
-        {
-            "name": "alibabacloud/gateway-spi",
-            "version": "1.0.0",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/alibabacloud-sdk-php/alibabacloud-gateway-spi.git",
-                "reference": "7440f77750c329d8ab252db1d1d967314ccd1fcb"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/alibabacloud-sdk-php/alibabacloud-gateway-spi/zipball/7440f77750c329d8ab252db1d1d967314ccd1fcb",
-                "reference": "7440f77750c329d8ab252db1d1d967314ccd1fcb",
-                "shasum": ""
-            },
-            "require": {
-                "alibabacloud/credentials": "^1.1",
-                "php": ">5.5"
-            },
-            "type": "library",
-            "autoload": {
-                "psr-4": {
-                    "Darabonba\\GatewaySpi\\": "src"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "Apache-2.0"
-            ],
-            "authors": [
-                {
-                    "name": "Alibaba Cloud SDK",
-                    "email": "sdk-team@alibabacloud.com"
-                }
-            ],
-            "description": "Alibaba Cloud Gateway SPI Client",
-            "support": {
-                "source": "https://github.com/alibabacloud-sdk-php/alibabacloud-gateway-spi/tree/1.0.0"
-            },
-            "time": "2022-07-14T05:31:35+00:00"
-        },
-        {
-            "name": "alibabacloud/openapi-util",
-            "version": "0.2.1",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/alibabacloud-sdk-php/openapi-util.git",
-                "reference": "f31f7bcd835e08ca24b6b8ba33637eb4eceb093a"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/alibabacloud-sdk-php/openapi-util/zipball/f31f7bcd835e08ca24b6b8ba33637eb4eceb093a",
-                "reference": "f31f7bcd835e08ca24b6b8ba33637eb4eceb093a",
-                "shasum": ""
-            },
-            "require": {
-                "alibabacloud/tea": "^3.1",
-                "alibabacloud/tea-utils": "^0.2",
-                "lizhichao/one-sm": "^1.5",
-                "php": ">5.5"
-            },
-            "require-dev": {
-                "phpunit/phpunit": "*"
-            },
-            "type": "library",
-            "autoload": {
-                "psr-4": {
-                    "AlibabaCloud\\OpenApiUtil\\": "src"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "Apache-2.0"
-            ],
-            "authors": [
-                {
-                    "name": "Alibaba Cloud SDK",
-                    "email": "sdk-team@alibabacloud.com"
-                }
-            ],
-            "description": "Alibaba Cloud OpenApi Util",
-            "support": {
-                "issues": "https://github.com/alibabacloud-sdk-php/openapi-util/issues",
-                "source": "https://github.com/alibabacloud-sdk-php/openapi-util/tree/0.2.1"
-            },
-            "time": "2023-01-10T09:10:10+00:00"
-        },
-        {
-            "name": "alibabacloud/tea",
-            "version": "3.2.1",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/aliyun/tea-php.git",
-                "reference": "1619cb96c158384f72b873e1f85de8b299c9c367"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/aliyun/tea-php/zipball/1619cb96c158384f72b873e1f85de8b299c9c367",
-                "reference": "1619cb96c158384f72b873e1f85de8b299c9c367",
-                "shasum": ""
-            },
-            "require": {
-                "adbario/php-dot-notation": "^2.4",
-                "ext-curl": "*",
-                "ext-json": "*",
-                "ext-libxml": "*",
-                "ext-mbstring": "*",
-                "ext-openssl": "*",
-                "ext-simplexml": "*",
-                "ext-xmlwriter": "*",
-                "guzzlehttp/guzzle": "^6.3|^7.0",
-                "php": ">=5.5"
-            },
-            "require-dev": {
-                "phpunit/phpunit": "*",
-                "symfony/dotenv": "^3.4",
-                "symfony/var-dumper": "^3.4"
-            },
-            "suggest": {
-                "ext-sockets": "To use client-side monitoring"
-            },
-            "type": "library",
-            "autoload": {
-                "psr-4": {
-                    "AlibabaCloud\\Tea\\": "src"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "Apache-2.0"
-            ],
-            "authors": [
-                {
-                    "name": "Alibaba Cloud SDK",
-                    "email": "sdk-team@alibabacloud.com",
-                    "homepage": "http://www.alibabacloud.com"
-                }
-            ],
-            "description": "Client of Tea for PHP",
-            "homepage": "https://www.alibabacloud.com/",
-            "keywords": [
-                "alibabacloud",
-                "client",
-                "cloud",
-                "tea"
-            ],
-            "support": {
-                "issues": "https://github.com/aliyun/tea-php/issues",
-                "source": "https://github.com/aliyun/tea-php"
-            },
-            "time": "2023-05-16T06:43:41+00:00"
-        },
-        {
-            "name": "alibabacloud/tea-utils",
-            "version": "0.2.19",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/alibabacloud-sdk-php/tea-utils.git",
-                "reference": "8dfc1a93e9415818e93a621b644abbb84981aea4"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/alibabacloud-sdk-php/tea-utils/zipball/8dfc1a93e9415818e93a621b644abbb84981aea4",
-                "reference": "8dfc1a93e9415818e93a621b644abbb84981aea4",
-                "shasum": ""
-            },
-            "require": {
-                "alibabacloud/tea": "^3.1",
-                "php": ">5.5"
-            },
-            "type": "library",
-            "autoload": {
-                "psr-4": {
-                    "AlibabaCloud\\Tea\\Utils\\": "src"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "Apache-2.0"
-            ],
-            "authors": [
-                {
-                    "name": "Alibaba Cloud SDK",
-                    "email": "sdk-team@alibabacloud.com"
-                }
-            ],
-            "description": "Alibaba Cloud Tea Utils for PHP",
-            "support": {
-                "issues": "https://github.com/aliyun/tea-util/issues",
-                "source": "https://github.com/aliyun/tea-util"
-            },
-            "time": "2023-06-26T09:49:19+00:00"
-        },
-        {
-            "name": "alibabacloud/tea-xml",
-            "version": "0.2.4",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/alibabacloud-sdk-php/tea-xml.git",
-                "reference": "3e0c000bf536224eebbac913c371bef174c0a16a"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/alibabacloud-sdk-php/tea-xml/zipball/3e0c000bf536224eebbac913c371bef174c0a16a",
-                "reference": "3e0c000bf536224eebbac913c371bef174c0a16a",
-                "shasum": ""
-            },
-            "require": {
-                "php": ">5.5"
-            },
-            "require-dev": {
-                "phpunit/phpunit": "*",
-                "symfony/var-dumper": "*"
-            },
-            "type": "library",
-            "autoload": {
-                "psr-4": {
-                    "AlibabaCloud\\Tea\\XML\\": "src"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "Apache-2.0"
-            ],
-            "authors": [
-                {
-                    "name": "Alibaba Cloud SDK",
-                    "email": "sdk-team@alibabacloud.com"
-                }
-            ],
-            "description": "Alibaba Cloud Tea XML Library for PHP",
-            "support": {
-                "source": "https://github.com/alibabacloud-sdk-php/tea-xml/tree/0.2.4"
-            },
-            "time": "2022-08-02T04:12:58+00:00"
-        },
-        {
-            "name": "aliyuncs/oss-sdk-php",
-            "version": "v2.6.0",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/aliyun/aliyun-oss-php-sdk.git",
-                "reference": "572d0f8e099e8630ae7139ed3fdedb926c7a760f"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/aliyun/aliyun-oss-php-sdk/zipball/572d0f8e099e8630ae7139ed3fdedb926c7a760f",
-                "reference": "572d0f8e099e8630ae7139ed3fdedb926c7a760f",
+                "url": "https://api.github.com/repos/clue/stream-filter/zipball/049509fef80032cb3f051595029ab75b49a3c2f7",
+                "reference": "049509fef80032cb3f051595029ab75b49a3c2f7",
                 "shasum": ""
             },
             "require": {
                 "php": ">=5.3"
             },
             "require-dev": {
-                "phpunit/phpunit": "*",
-                "satooshi/php-coveralls": "*"
+                "phpunit/phpunit": "^9.6 || ^5.7 || ^4.8.36"
             },
             "type": "library",
             "autoload": {
+                "files": [
+                    "src/functions_include.php"
+                ],
                 "psr-4": {
-                    "OSS\\": "src/OSS"
+                    "Clue\\StreamFilter\\": "src/"
                 }
             },
             "notification-url": "https://packagist.org/downloads/",
@@ -537,36 +41,117 @@
             ],
             "authors": [
                 {
-                    "name": "Aliyuncs",
-                    "homepage": "http://www.aliyun.com"
+                    "name": "Christian Lück",
+                    "email": "christian@clue.engineering"
                 }
             ],
-            "description": "Aliyun OSS SDK for PHP",
-            "homepage": "http://www.aliyun.com/product/oss/",
+            "description": "A simple and modern approach to stream filtering in PHP",
+            "homepage": "https://github.com/clue/stream-filter",
+            "keywords": [
+                "bucket brigade",
+                "callback",
+                "filter",
+                "php_user_filter",
+                "stream",
+                "stream_filter_append",
+                "stream_filter_register"
+            ],
             "support": {
-                "issues": "https://github.com/aliyun/aliyun-oss-php-sdk/issues",
-                "source": "https://github.com/aliyun/aliyun-oss-php-sdk/tree/v2.6.0"
+                "issues": "https://github.com/clue/stream-filter/issues",
+                "source": "https://github.com/clue/stream-filter/tree/v1.7.0"
             },
-            "time": "2022-08-03T08:06:01+00:00"
+            "funding": [
+                {
+                    "url": "https://clue.engineering/support",
+                    "type": "custom"
+                },
+                {
+                    "url": "https://github.com/clue",
+                    "type": "github"
+                }
+            ],
+            "time": "2023-12-20T15:40:13+00:00"
         },
         {
-            "name": "guzzlehttp/guzzle",
-            "version": "7.8.0",
+            "name": "dew-serverless/acs-sdk-php",
+            "version": "v0.7.0+20241130",
             "source": {
                 "type": "git",
-                "url": "https://github.com/guzzle/guzzle.git",
-                "reference": "1110f66a6530a40fe7aea0378fe608ee2b2248f9"
+                "url": "https://github.com/dew-serverless/acs-sdk-php.git",
+                "reference": "3572e254b6b6f1021ed8c060df4262bad288393b"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/guzzle/guzzle/zipball/1110f66a6530a40fe7aea0378fe608ee2b2248f9",
-                "reference": "1110f66a6530a40fe7aea0378fe608ee2b2248f9",
+                "url": "https://api.github.com/repos/dew-serverless/acs-sdk-php/zipball/3572e254b6b6f1021ed8c060df4262bad288393b",
+                "reference": "3572e254b6b6f1021ed8c060df4262bad288393b",
+                "shasum": ""
+            },
+            "require": {
+                "guzzlehttp/psr7": "^2.7",
+                "php": "^8.2",
+                "php-http/client-common": "^2.7",
+                "php-http/discovery": "^1.0",
+                "psr/http-client-implementation": "^1.0",
+                "psr/http-factory": "^1.1"
+            },
+            "require-dev": {
+                "friendsofphp/php-cs-fixer": "^3.59",
+                "google/protobuf": "^4.27",
+                "mockery/mockery": "^1.6",
+                "nyholm/psr7": "^1.0",
+                "php-http/mock-client": "^1.0",
+                "phpstan/phpstan": "^1.11",
+                "phpstan/phpstan-mockery": "^1.1",
+                "phpunit/phpunit": "^11.2",
+                "rector/rector": "^1.1",
+                "symfony/var-exporter": "^7.1"
+            },
+            "suggest": {
+                "ext-lz4": "Allows Protobuf compression with lz4 in SLS",
+                "ext-zstd": "Allows Protobuf compression with zstd in SLS",
+                "google/protobuf": "Required for Tablestore management."
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Dew\\Acs\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Li Zhineng",
+                    "email": "im@zhineng.li"
+                }
+            ],
+            "description": "Unofficial Alibaba Cloud PHP SDK.",
+            "support": {
+                "issues": "https://github.com/dew-serverless/acs-sdk-php/issues",
+                "source": "https://github.com/dew-serverless/acs-sdk-php/tree/v0.7.0+20241130"
+            },
+            "time": "2024-11-30T13:52:28+00:00"
+        },
+        {
+            "name": "guzzlehttp/guzzle",
+            "version": "7.9.2",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/guzzle/guzzle.git",
+                "reference": "d281ed313b989f213357e3be1a179f02196ac99b"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/guzzle/guzzle/zipball/d281ed313b989f213357e3be1a179f02196ac99b",
+                "reference": "d281ed313b989f213357e3be1a179f02196ac99b",
                 "shasum": ""
             },
             "require": {
                 "ext-json": "*",
-                "guzzlehttp/promises": "^1.5.3 || ^2.0.1",
-                "guzzlehttp/psr7": "^1.9.1 || ^2.5.1",
+                "guzzlehttp/promises": "^1.5.3 || ^2.0.3",
+                "guzzlehttp/psr7": "^2.7.0",
                 "php": "^7.2.5 || ^8.0",
                 "psr/http-client": "^1.0",
                 "symfony/deprecation-contracts": "^2.2 || ^3.0"
@@ -575,11 +160,11 @@
                 "psr/http-client-implementation": "1.0"
             },
             "require-dev": {
-                "bamarni/composer-bin-plugin": "^1.8.1",
+                "bamarni/composer-bin-plugin": "^1.8.2",
                 "ext-curl": "*",
-                "php-http/client-integration-tests": "dev-master#2c025848417c1135031fdf9c728ee53d0a7ceaee as 3.0.999",
+                "guzzle/client-integration-tests": "3.0.2",
                 "php-http/message-factory": "^1.1",
-                "phpunit/phpunit": "^8.5.29 || ^9.5.23",
+                "phpunit/phpunit": "^8.5.39 || ^9.6.20",
                 "psr/log": "^1.1 || ^2.0 || ^3.0"
             },
             "suggest": {
@@ -657,7 +242,7 @@
             ],
             "support": {
                 "issues": "https://github.com/guzzle/guzzle/issues",
-                "source": "https://github.com/guzzle/guzzle/tree/7.8.0"
+                "source": "https://github.com/guzzle/guzzle/tree/7.9.2"
             },
             "funding": [
                 {
@@ -673,28 +258,28 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2023-08-27T10:20:53+00:00"
+            "time": "2024-07-24T11:22:20+00:00"
         },
         {
             "name": "guzzlehttp/promises",
-            "version": "2.0.1",
+            "version": "2.0.4",
             "source": {
                 "type": "git",
                 "url": "https://github.com/guzzle/promises.git",
-                "reference": "111166291a0f8130081195ac4556a5587d7f1b5d"
+                "reference": "f9c436286ab2892c7db7be8c8da4ef61ccf7b455"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/guzzle/promises/zipball/111166291a0f8130081195ac4556a5587d7f1b5d",
-                "reference": "111166291a0f8130081195ac4556a5587d7f1b5d",
+                "url": "https://api.github.com/repos/guzzle/promises/zipball/f9c436286ab2892c7db7be8c8da4ef61ccf7b455",
+                "reference": "f9c436286ab2892c7db7be8c8da4ef61ccf7b455",
                 "shasum": ""
             },
             "require": {
                 "php": "^7.2.5 || ^8.0"
             },
             "require-dev": {
-                "bamarni/composer-bin-plugin": "^1.8.1",
-                "phpunit/phpunit": "^8.5.29 || ^9.5.23"
+                "bamarni/composer-bin-plugin": "^1.8.2",
+                "phpunit/phpunit": "^8.5.39 || ^9.6.20"
             },
             "type": "library",
             "extra": {
@@ -740,7 +325,7 @@
             ],
             "support": {
                 "issues": "https://github.com/guzzle/promises/issues",
-                "source": "https://github.com/guzzle/promises/tree/2.0.1"
+                "source": "https://github.com/guzzle/promises/tree/2.0.4"
             },
             "funding": [
                 {
@@ -756,20 +341,20 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2023-08-03T15:11:55+00:00"
+            "time": "2024-10-17T10:06:22+00:00"
         },
         {
             "name": "guzzlehttp/psr7",
-            "version": "2.6.1",
+            "version": "2.7.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/guzzle/psr7.git",
-                "reference": "be45764272e8873c72dbe3d2edcfdfcc3bc9f727"
+                "reference": "a70f5c95fb43bc83f07c9c948baa0dc1829bf201"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/guzzle/psr7/zipball/be45764272e8873c72dbe3d2edcfdfcc3bc9f727",
-                "reference": "be45764272e8873c72dbe3d2edcfdfcc3bc9f727",
+                "url": "https://api.github.com/repos/guzzle/psr7/zipball/a70f5c95fb43bc83f07c9c948baa0dc1829bf201",
+                "reference": "a70f5c95fb43bc83f07c9c948baa0dc1829bf201",
                 "shasum": ""
             },
             "require": {
@@ -783,9 +368,9 @@
                 "psr/http-message-implementation": "1.0"
             },
             "require-dev": {
-                "bamarni/composer-bin-plugin": "^1.8.1",
-                "http-interop/http-factory-tests": "^0.9",
-                "phpunit/phpunit": "^8.5.29 || ^9.5.23"
+                "bamarni/composer-bin-plugin": "^1.8.2",
+                "http-interop/http-factory-tests": "0.9.0",
+                "phpunit/phpunit": "^8.5.39 || ^9.6.20"
             },
             "suggest": {
                 "laminas/laminas-httphandlerrunner": "Emit PSR-7 responses"
@@ -856,7 +441,7 @@
             ],
             "support": {
                 "issues": "https://github.com/guzzle/psr7/issues",
-                "source": "https://github.com/guzzle/psr7/tree/2.6.1"
+                "source": "https://github.com/guzzle/psr7/tree/2.7.0"
             },
             "funding": [
                 {
@@ -872,61 +457,392 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2023-08-27T10:13:57+00:00"
+            "time": "2024-07-18T11:15:46+00:00"
         },
         {
-            "name": "lizhichao/one-sm",
-            "version": "1.10",
+            "name": "php-http/client-common",
+            "version": "2.7.2",
             "source": {
                 "type": "git",
-                "url": "https://github.com/lizhichao/sm.git",
-                "reference": "687a012a44a5bfd4d9143a0234e1060543be455a"
+                "url": "https://github.com/php-http/client-common.git",
+                "reference": "0cfe9858ab9d3b213041b947c881d5b19ceeca46"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/lizhichao/sm/zipball/687a012a44a5bfd4d9143a0234e1060543be455a",
-                "reference": "687a012a44a5bfd4d9143a0234e1060543be455a",
+                "url": "https://api.github.com/repos/php-http/client-common/zipball/0cfe9858ab9d3b213041b947c881d5b19ceeca46",
+                "reference": "0cfe9858ab9d3b213041b947c881d5b19ceeca46",
                 "shasum": ""
             },
             "require": {
-                "php": ">=5.6"
+                "php": "^7.1 || ^8.0",
+                "php-http/httplug": "^2.0",
+                "php-http/message": "^1.6",
+                "psr/http-client": "^1.0",
+                "psr/http-factory": "^1.0",
+                "psr/http-message": "^1.0 || ^2.0",
+                "symfony/options-resolver": "~4.0.15 || ~4.1.9 || ^4.2.1 || ^5.0 || ^6.0 || ^7.0",
+                "symfony/polyfill-php80": "^1.17"
+            },
+            "require-dev": {
+                "doctrine/instantiator": "^1.1",
+                "guzzlehttp/psr7": "^1.4",
+                "nyholm/psr7": "^1.2",
+                "phpspec/phpspec": "^5.1 || ^6.3 || ^7.1",
+                "phpspec/prophecy": "^1.10.2",
+                "phpunit/phpunit": "^7.5.20 || ^8.5.33 || ^9.6.7"
+            },
+            "suggest": {
+                "ext-json": "To detect JSON responses with the ContentTypePlugin",
+                "ext-libxml": "To detect XML responses with the ContentTypePlugin",
+                "php-http/cache-plugin": "PSR-6 Cache plugin",
+                "php-http/logger-plugin": "PSR-3 Logger plugin",
+                "php-http/stopwatch-plugin": "Symfony Stopwatch plugin"
             },
             "type": "library",
             "autoload": {
                 "psr-4": {
-                    "OneSm\\": "src/"
+                    "Http\\Client\\Common\\": "src/"
                 }
             },
             "notification-url": "https://packagist.org/downloads/",
             "license": [
-                "Apache-2.0"
+                "MIT"
             ],
             "authors": [
                 {
-                    "name": "tanszhe",
-                    "email": "1018595261@qq.com"
+                    "name": "Márk Sági-Kazár",
+                    "email": "mark.sagikazar@gmail.com"
                 }
             ],
-            "description": "国密sm3",
+            "description": "Common HTTP Client implementations and tools for HTTPlug",
+            "homepage": "http://httplug.io",
             "keywords": [
-                "php",
-                "sm3"
+                "client",
+                "common",
+                "http",
+                "httplug"
             ],
             "support": {
-                "issues": "https://github.com/lizhichao/sm/issues",
-                "source": "https://github.com/lizhichao/sm/tree/1.10"
+                "issues": "https://github.com/php-http/client-common/issues",
+                "source": "https://github.com/php-http/client-common/tree/2.7.2"
             },
-            "funding": [
-                {
-                    "url": "https://www.vicsdf.com/img/w.jpg",
-                    "type": "custom"
+            "time": "2024-09-24T06:21:48+00:00"
+        },
+        {
+            "name": "php-http/discovery",
+            "version": "1.20.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/php-http/discovery.git",
+                "reference": "82fe4c73ef3363caed49ff8dd1539ba06044910d"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/php-http/discovery/zipball/82fe4c73ef3363caed49ff8dd1539ba06044910d",
+                "reference": "82fe4c73ef3363caed49ff8dd1539ba06044910d",
+                "shasum": ""
+            },
+            "require": {
+                "composer-plugin-api": "^1.0|^2.0",
+                "php": "^7.1 || ^8.0"
+            },
+            "conflict": {
+                "nyholm/psr7": "<1.0",
+                "zendframework/zend-diactoros": "*"
+            },
+            "provide": {
+                "php-http/async-client-implementation": "*",
+                "php-http/client-implementation": "*",
+                "psr/http-client-implementation": "*",
+                "psr/http-factory-implementation": "*",
+                "psr/http-message-implementation": "*"
+            },
+            "require-dev": {
+                "composer/composer": "^1.0.2|^2.0",
+                "graham-campbell/phpspec-skip-example-extension": "^5.0",
+                "php-http/httplug": "^1.0 || ^2.0",
+                "php-http/message-factory": "^1.0",
+                "phpspec/phpspec": "^5.1 || ^6.1 || ^7.3",
+                "sebastian/comparator": "^3.0.5 || ^4.0.8",
+                "symfony/phpunit-bridge": "^6.4.4 || ^7.0.1"
+            },
+            "type": "composer-plugin",
+            "extra": {
+                "class": "Http\\Discovery\\Composer\\Plugin",
+                "plugin-optional": true
+            },
+            "autoload": {
+                "psr-4": {
+                    "Http\\Discovery\\": "src/"
                 },
+                "exclude-from-classmap": [
+                    "src/Composer/Plugin.php"
+                ]
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
                 {
-                    "url": "https://www.vicsdf.com/img/z.jpg",
-                    "type": "custom"
+                    "name": "Márk Sági-Kazár",
+                    "email": "mark.sagikazar@gmail.com"
                 }
             ],
-            "time": "2021-05-26T06:19:22+00:00"
+            "description": "Finds and installs PSR-7, PSR-17, PSR-18 and HTTPlug implementations",
+            "homepage": "http://php-http.org",
+            "keywords": [
+                "adapter",
+                "client",
+                "discovery",
+                "factory",
+                "http",
+                "message",
+                "psr17",
+                "psr7"
+            ],
+            "support": {
+                "issues": "https://github.com/php-http/discovery/issues",
+                "source": "https://github.com/php-http/discovery/tree/1.20.0"
+            },
+            "time": "2024-10-02T11:20:13+00:00"
+        },
+        {
+            "name": "php-http/guzzle7-adapter",
+            "version": "1.1.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/php-http/guzzle7-adapter.git",
+                "reference": "03a415fde709c2f25539790fecf4d9a31bc3d0eb"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/php-http/guzzle7-adapter/zipball/03a415fde709c2f25539790fecf4d9a31bc3d0eb",
+                "reference": "03a415fde709c2f25539790fecf4d9a31bc3d0eb",
+                "shasum": ""
+            },
+            "require": {
+                "guzzlehttp/guzzle": "^7.0",
+                "php": "^7.3 | ^8.0",
+                "php-http/httplug": "^2.0",
+                "psr/http-client": "^1.0"
+            },
+            "provide": {
+                "php-http/async-client-implementation": "1.0",
+                "php-http/client-implementation": "1.0",
+                "psr/http-client-implementation": "1.0"
+            },
+            "require-dev": {
+                "php-http/client-integration-tests": "^3.0",
+                "php-http/message-factory": "^1.1",
+                "phpspec/prophecy-phpunit": "^2.0",
+                "phpunit/phpunit": "^8.0|^9.3"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Http\\Adapter\\Guzzle7\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Tobias Nyholm",
+                    "email": "tobias.nyholm@gmail.com"
+                }
+            ],
+            "description": "Guzzle 7 HTTP Adapter",
+            "homepage": "http://httplug.io",
+            "keywords": [
+                "Guzzle",
+                "http"
+            ],
+            "support": {
+                "issues": "https://github.com/php-http/guzzle7-adapter/issues",
+                "source": "https://github.com/php-http/guzzle7-adapter/tree/1.1.0"
+            },
+            "time": "2024-11-26T11:14:36+00:00"
+        },
+        {
+            "name": "php-http/httplug",
+            "version": "2.4.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/php-http/httplug.git",
+                "reference": "5cad731844891a4c282f3f3e1b582c46839d22f4"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/php-http/httplug/zipball/5cad731844891a4c282f3f3e1b582c46839d22f4",
+                "reference": "5cad731844891a4c282f3f3e1b582c46839d22f4",
+                "shasum": ""
+            },
+            "require": {
+                "php": "^7.1 || ^8.0",
+                "php-http/promise": "^1.1",
+                "psr/http-client": "^1.0",
+                "psr/http-message": "^1.0 || ^2.0"
+            },
+            "require-dev": {
+                "friends-of-phpspec/phpspec-code-coverage": "^4.1 || ^5.0 || ^6.0",
+                "phpspec/phpspec": "^5.1 || ^6.0 || ^7.0"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Http\\Client\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Eric GELOEN",
+                    "email": "geloen.eric@gmail.com"
+                },
+                {
+                    "name": "Márk Sági-Kazár",
+                    "email": "mark.sagikazar@gmail.com",
+                    "homepage": "https://sagikazarmark.hu"
+                }
+            ],
+            "description": "HTTPlug, the HTTP client abstraction for PHP",
+            "homepage": "http://httplug.io",
+            "keywords": [
+                "client",
+                "http"
+            ],
+            "support": {
+                "issues": "https://github.com/php-http/httplug/issues",
+                "source": "https://github.com/php-http/httplug/tree/2.4.1"
+            },
+            "time": "2024-09-23T11:39:58+00:00"
+        },
+        {
+            "name": "php-http/message",
+            "version": "1.16.2",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/php-http/message.git",
+                "reference": "06dd5e8562f84e641bf929bfe699ee0f5ce8080a"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/php-http/message/zipball/06dd5e8562f84e641bf929bfe699ee0f5ce8080a",
+                "reference": "06dd5e8562f84e641bf929bfe699ee0f5ce8080a",
+                "shasum": ""
+            },
+            "require": {
+                "clue/stream-filter": "^1.5",
+                "php": "^7.2 || ^8.0",
+                "psr/http-message": "^1.1 || ^2.0"
+            },
+            "provide": {
+                "php-http/message-factory-implementation": "1.0"
+            },
+            "require-dev": {
+                "ergebnis/composer-normalize": "^2.6",
+                "ext-zlib": "*",
+                "guzzlehttp/psr7": "^1.0 || ^2.0",
+                "laminas/laminas-diactoros": "^2.0 || ^3.0",
+                "php-http/message-factory": "^1.0.2",
+                "phpspec/phpspec": "^5.1 || ^6.3 || ^7.1",
+                "slim/slim": "^3.0"
+            },
+            "suggest": {
+                "ext-zlib": "Used with compressor/decompressor streams",
+                "guzzlehttp/psr7": "Used with Guzzle PSR-7 Factories",
+                "laminas/laminas-diactoros": "Used with Diactoros Factories",
+                "slim/slim": "Used with Slim Framework PSR-7 implementation"
+            },
+            "type": "library",
+            "autoload": {
+                "files": [
+                    "src/filters.php"
+                ],
+                "psr-4": {
+                    "Http\\Message\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Márk Sági-Kazár",
+                    "email": "mark.sagikazar@gmail.com"
+                }
+            ],
+            "description": "HTTP Message related tools",
+            "homepage": "http://php-http.org",
+            "keywords": [
+                "http",
+                "message",
+                "psr-7"
+            ],
+            "support": {
+                "issues": "https://github.com/php-http/message/issues",
+                "source": "https://github.com/php-http/message/tree/1.16.2"
+            },
+            "time": "2024-10-02T11:34:13+00:00"
+        },
+        {
+            "name": "php-http/promise",
+            "version": "1.3.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/php-http/promise.git",
+                "reference": "fc85b1fba37c169a69a07ef0d5a8075770cc1f83"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/php-http/promise/zipball/fc85b1fba37c169a69a07ef0d5a8075770cc1f83",
+                "reference": "fc85b1fba37c169a69a07ef0d5a8075770cc1f83",
+                "shasum": ""
+            },
+            "require": {
+                "php": "^7.1 || ^8.0"
+            },
+            "require-dev": {
+                "friends-of-phpspec/phpspec-code-coverage": "^4.3.2 || ^6.3",
+                "phpspec/phpspec": "^5.1.2 || ^6.2 || ^7.4"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Http\\Promise\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Joel Wurtz",
+                    "email": "joel.wurtz@gmail.com"
+                },
+                {
+                    "name": "Márk Sági-Kazár",
+                    "email": "mark.sagikazar@gmail.com"
+                }
+            ],
+            "description": "Promise used for asynchronous HTTP requests",
+            "homepage": "http://httplug.io",
+            "keywords": [
+                "promise"
+            ],
+            "support": {
+                "issues": "https://github.com/php-http/promise/issues",
+                "source": "https://github.com/php-http/promise/tree/1.3.1"
+            },
+            "time": "2024-03-15T13:55:21+00:00"
         },
         {
             "name": "psr/http-client",
@@ -982,20 +898,20 @@
         },
         {
             "name": "psr/http-factory",
-            "version": "1.0.2",
+            "version": "1.1.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/php-fig/http-factory.git",
-                "reference": "e616d01114759c4c489f93b099585439f795fe35"
+                "reference": "2b4765fddfe3b508ac62f829e852b1501d3f6e8a"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/php-fig/http-factory/zipball/e616d01114759c4c489f93b099585439f795fe35",
-                "reference": "e616d01114759c4c489f93b099585439f795fe35",
+                "url": "https://api.github.com/repos/php-fig/http-factory/zipball/2b4765fddfe3b508ac62f829e852b1501d3f6e8a",
+                "reference": "2b4765fddfe3b508ac62f829e852b1501d3f6e8a",
                 "shasum": ""
             },
             "require": {
-                "php": ">=7.0.0",
+                "php": ">=7.1",
                 "psr/http-message": "^1.0 || ^2.0"
             },
             "type": "library",
@@ -1019,7 +935,7 @@
                     "homepage": "https://www.php-fig.org/"
                 }
             ],
-            "description": "Common interfaces for PSR-7 HTTP message factories",
+            "description": "PSR-17: Common interfaces for PSR-7 HTTP message factories",
             "keywords": [
                 "factory",
                 "http",
@@ -1031,9 +947,9 @@
                 "response"
             ],
             "support": {
-                "source": "https://github.com/php-fig/http-factory/tree/1.0.2"
+                "source": "https://github.com/php-fig/http-factory"
             },
-            "time": "2023-04-10T20:10:41+00:00"
+            "time": "2024-04-15T12:06:14+00:00"
         },
         {
             "name": "psr/http-message",
@@ -1134,16 +1050,16 @@
         },
         {
             "name": "symfony/deprecation-contracts",
-            "version": "v3.3.0",
+            "version": "v3.5.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/deprecation-contracts.git",
-                "reference": "7c3aff79d10325257a001fcf92d991f24fc967cf"
+                "reference": "74c71c939a79f7d5bf3c1ce9f5ea37ba0114c6f6"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/deprecation-contracts/zipball/7c3aff79d10325257a001fcf92d991f24fc967cf",
-                "reference": "7c3aff79d10325257a001fcf92d991f24fc967cf",
+                "url": "https://api.github.com/repos/symfony/deprecation-contracts/zipball/74c71c939a79f7d5bf3c1ce9f5ea37ba0114c6f6",
+                "reference": "74c71c939a79f7d5bf3c1ce9f5ea37ba0114c6f6",
                 "shasum": ""
             },
             "require": {
@@ -1152,7 +1068,7 @@
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-main": "3.4-dev"
+                    "dev-main": "3.5-dev"
                 },
                 "thanks": {
                     "name": "symfony/contracts",
@@ -1181,7 +1097,7 @@
             "description": "A generic function and convention to trigger deprecation notices",
             "homepage": "https://symfony.com",
             "support": {
-                "source": "https://github.com/symfony/deprecation-contracts/tree/v3.3.0"
+                "source": "https://github.com/symfony/deprecation-contracts/tree/v3.5.1"
             },
             "funding": [
                 {
@@ -1197,16 +1113,163 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2023-05-23T14:45:45+00:00"
+            "time": "2024-09-25T14:20:29+00:00"
+        },
+        {
+            "name": "symfony/options-resolver",
+            "version": "v7.2.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/symfony/options-resolver.git",
+                "reference": "7da8fbac9dcfef75ffc212235d76b2754ce0cf50"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/symfony/options-resolver/zipball/7da8fbac9dcfef75ffc212235d76b2754ce0cf50",
+                "reference": "7da8fbac9dcfef75ffc212235d76b2754ce0cf50",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=8.2",
+                "symfony/deprecation-contracts": "^2.5|^3"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Symfony\\Component\\OptionsResolver\\": ""
+                },
+                "exclude-from-classmap": [
+                    "/Tests/"
+                ]
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Fabien Potencier",
+                    "email": "fabien@symfony.com"
+                },
+                {
+                    "name": "Symfony Community",
+                    "homepage": "https://symfony.com/contributors"
+                }
+            ],
+            "description": "Provides an improved replacement for the array_replace PHP function",
+            "homepage": "https://symfony.com",
+            "keywords": [
+                "config",
+                "configuration",
+                "options"
+            ],
+            "support": {
+                "source": "https://github.com/symfony/options-resolver/tree/v7.2.0"
+            },
+            "funding": [
+                {
+                    "url": "https://symfony.com/sponsor",
+                    "type": "custom"
+                },
+                {
+                    "url": "https://github.com/fabpot",
+                    "type": "github"
+                },
+                {
+                    "url": "https://tidelift.com/funding/github/packagist/symfony/symfony",
+                    "type": "tidelift"
+                }
+            ],
+            "time": "2024-11-20T11:17:29+00:00"
+        },
+        {
+            "name": "symfony/polyfill-php80",
+            "version": "v1.31.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/symfony/polyfill-php80.git",
+                "reference": "60328e362d4c2c802a54fcbf04f9d3fb892b4cf8"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/symfony/polyfill-php80/zipball/60328e362d4c2c802a54fcbf04f9d3fb892b4cf8",
+                "reference": "60328e362d4c2c802a54fcbf04f9d3fb892b4cf8",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=7.2"
+            },
+            "type": "library",
+            "extra": {
+                "thanks": {
+                    "name": "symfony/polyfill",
+                    "url": "https://github.com/symfony/polyfill"
+                }
+            },
+            "autoload": {
+                "files": [
+                    "bootstrap.php"
+                ],
+                "psr-4": {
+                    "Symfony\\Polyfill\\Php80\\": ""
+                },
+                "classmap": [
+                    "Resources/stubs"
+                ]
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Ion Bazan",
+                    "email": "ion.bazan@gmail.com"
+                },
+                {
+                    "name": "Nicolas Grekas",
+                    "email": "p@tchwork.com"
+                },
+                {
+                    "name": "Symfony Community",
+                    "homepage": "https://symfony.com/contributors"
+                }
+            ],
+            "description": "Symfony polyfill backporting some PHP 8.0+ features to lower PHP versions",
+            "homepage": "https://symfony.com",
+            "keywords": [
+                "compatibility",
+                "polyfill",
+                "portable",
+                "shim"
+            ],
+            "support": {
+                "source": "https://github.com/symfony/polyfill-php80/tree/v1.31.0"
+            },
+            "funding": [
+                {
+                    "url": "https://symfony.com/sponsor",
+                    "type": "custom"
+                },
+                {
+                    "url": "https://github.com/fabpot",
+                    "type": "github"
+                },
+                {
+                    "url": "https://tidelift.com/funding/github/packagist/symfony/symfony",
+                    "type": "tidelift"
+                }
+            ],
+            "time": "2024-09-09T11:45:10+00:00"
         }
     ],
     "packages-dev": [],
     "aliases": [],
     "minimum-stability": "stable",
-    "stability-flags": [],
+    "stability-flags": {},
     "prefer-stable": false,
     "prefer-lowest": false,
-    "platform": [],
-    "platform-dev": [],
+    "platform": {},
+    "platform-dev": {},
     "plugin-api-version": "2.6.0"
 }
