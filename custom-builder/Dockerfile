@@ -81,7 +81,7 @@ ENV LIBSQLITE3_BUILD_DIR=${BUILD_DIR}/libsqlite3
 WORKDIR ${LIBSQLITE3_BUILD_DIR}/
 
 RUN set -xe; \
-    curl -sL https://sqlite.org/src/tarball/version-${LIBSQLITE3_VERSION}/sqlite.tar.gz \
+    curl -sL https://github.com/sqlite/sqlite/archive/refs/tags/version-${LIBSQLITE3_VERSION}.tar.gz \
     | tar xzC ${LIBSQLITE3_BUILD_DIR} --strip-components 1
 
 RUN CFLAGS="-O2 -pipe" \
