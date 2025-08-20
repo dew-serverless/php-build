@@ -1,5 +1,5 @@
 ARG ROADRUNNER_VERSION=latest
-FROM dew/custom-debian11-builder:latest AS builder
+FROM dew/custom-debian12-builder:latest AS builder
 
 # =============================================================================
 # Build PHP
