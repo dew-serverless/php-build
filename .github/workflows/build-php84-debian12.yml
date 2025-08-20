@@ -1,0 +1,21 @@
+name: Build PHP 8.4 on Debian 12
+
+on:
+    push:
+        paths:
+            - 'php84-debian12/**'
+            - 'custom-debian12-builder/**'
+            - '.github/workflows/build.yml'
+
+jobs:
+    build:
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout code
+              uses: actions/checkout@v4
+
+            - name: Set up Docker Buildx
+              uses: docker/setup-buildx-action@v3
+
+            - name: Build
+              run: make build-php84-debian12
