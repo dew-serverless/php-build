@@ -19,7 +19,7 @@ build: $(addprefix build-,$(VARIANTS))
 
 test-setup:
 	cd tests; \
-	composer install
+	composer install --prefer-dist
 
 test-%:
 	cd tests; \
