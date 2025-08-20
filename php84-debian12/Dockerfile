@@ -1,5 +1,7 @@
 ARG ROADRUNNER_VERSION=latest
-FROM dew/custom-debian12-builder:latest AS builder
+ARG DEBIAN_VERSION=12
+
+FROM dew/custom-debian${DEBIAN_VERSION}-builder:latest AS builder
 
 # =============================================================================
 # Build PHP
@@ -112,8 +114,12 @@ COPY stubs/.rr.yaml /layer
 
 # =============================================================================
 # Leave build environment behind and start with a clean image
+
+ARG ROADRUNNER_VERSION
+ARG DEBIAN_VERSION
+
 FROM ghcr.io/roadrunner-server/roadrunner:${ROADRUNNER_VERSION} AS roadrunner
-FROM debian:11 AS clean
+FROM debian:${DEBIAN_VERSION} AS clean
 
 COPY --from=builder /layer /opt
 COPY --from=roadrunner /usr/bin/rr /opt/bin/rr
