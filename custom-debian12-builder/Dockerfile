@@ -278,7 +278,9 @@ RUN CFLAGS="-O2 -pipe" \
         # Without built-in documentation
         --disable-manual \
         # Eliminate debugging strings and error code strings
-        --disable-verbose
+        --disable-verbose \
+        # Disable Public Suffix list support in cookies
+        --without-libpsl
 
 RUN make -j$(nproc) && make install
 
