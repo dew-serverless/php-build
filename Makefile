@@ -1,5 +1,5 @@
 OBJECTS = php81 php82 php83 php84
-VARIANTS = $(addsuffix -debian11,$(OBJECTS))
+VARIANTS = $(addsuffix -debian11,$(OBJECTS)) $(addsuffix -debian12,$(OBJECTS))
 DOCKER_BUILD_EXTRA ?=
 
 ifdef GITHUB_ACTIONS
