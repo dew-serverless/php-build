@@ -47,6 +47,8 @@ jobs:
         needs: changes
         name: Build ${{ matrix.variant }}
         runs-on: ubuntu-latest
+        concurrency:
+          group: ${{ contains(matrix.variant, 'debian12') && 'debian12' || 'debian11' }}
         strategy:
           fail-fast: false
           matrix:
