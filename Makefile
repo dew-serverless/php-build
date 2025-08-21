@@ -2,10 +2,6 @@ OBJECTS = php81 php82 php83 php84
 VARIANTS = $(addsuffix -debian11,$(OBJECTS)) $(addsuffix -debian12,$(OBJECTS))
 DOCKER_BUILD_EXTRA ?=
 
-ifdef GITHUB_ACTIONS
-	DOCKER_BUILD_EXTRA += --cache-from type=gha --cache-to type=gha,mode=max
-endif
-
 .PHONY: build export publish clean
 
 build-%:
