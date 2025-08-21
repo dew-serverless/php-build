@@ -1,10 +1,9 @@
 OBJECTS = php81 php82 php83 php84
 VARIANTS = $(addsuffix -debian11,$(OBJECTS))
+DOCKER_BUILD_EXTRA ?=
 
 ifdef GITHUB_ACTIONS
-	DOCKER_CACHE_FLAGS ?= --cache-from type=gha --cache-to type=gha,mode=max
-else
-	DOCKER_CACHE_FLAGS ?=
+	DOCKER_BUILD_EXTRA += --cache-from type=gha --cache-to type=gha,mode=max
 endif
 
 .PHONY: build export publish clean
@@ -12,8 +11,11 @@ endif
 build-%:
 	VARIANT="$(shell echo $* | sed -E 's/^php[0-9]+//')" && \
 	BUILD_ARGS="$(shell awk '/^[a-zA-Z0-9]+ *=/ { printf "--build-arg %s_VERSION=%s ", toupper($$1), $$3 }' "$*/dependencies.ini" | xargs)" && \
-	docker buildx build $$BUILD_ARGS $(DOCKER_CACHE_FLAGS) -t dew/custom$$VARIANT-builder -f custom$$VARIANT-builder/Dockerfile . && \
-	docker buildx build $$BUILD_ARGS $(DOCKER_CACHE_FLAGS) -t dew/$* -t ghcr.io/dew-serverless/php:$(subst php,,$*) -f $*/Dockerfile .
+	docker buildx build $$BUILD_ARGS $(DOCKER_BUILD_EXTRA) \
+		--load \
+		-t dew/$* \
+		-t ghcr.io/dew-serverless/php:$(subst php,,$*) \
+		.
 
 build: $(addprefix build-,$(VARIANTS))
 
