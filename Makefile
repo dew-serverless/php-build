@@ -1,19 +1,22 @@
 OBJECTS = php81 php82 php83 php84
-VARIANTS = $(addsuffix -debian11,$(OBJECTS))
+VARIANTS = $(addsuffix -debian11,$(OBJECTS)) $(addsuffix -debian12,$(OBJECTS))
+DOCKER_BUILD_EXTRA ?=
 
 .PHONY: build export publish clean
 
 build-%:
-	VARIANT="$(shell echo $* | sed -E 's/^php[0-9]+//')" && \
 	BUILD_ARGS="$(shell awk '/^[a-zA-Z0-9]+ *=/ { printf "--build-arg %s_VERSION=%s ", toupper($$1), $$3 }' "$*/dependencies.ini" | xargs)" && \
-	docker build $$BUILD_ARGS -t dew/custom$$VARIANT-builder -f custom$$VARIANT-builder/Dockerfile . && \
-	docker build $$BUILD_ARGS -t dew/$* -t ghcr.io/dew-serverless/php:$(subst php,,$*) -f $*/Dockerfile .
+	docker buildx build $$BUILD_ARGS $(DOCKER_BUILD_EXTRA) \
+		--load \
+		-t dew/$* \
+		-t ghcr.io/dew-serverless/php:$(subst php,,$*) \
+		.
 
 build: $(addprefix build-,$(VARIANTS))
 
 test-setup:
 	cd tests; \
-	composer install
+	composer install --prefer-dist
 
 test-%:
 	cd tests; \

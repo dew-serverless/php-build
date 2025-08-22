@@ -1,0 +1,96 @@
+name: Build
+
+on:
+    push:
+
+jobs:
+    changes:
+      name: Detect Changes
+      runs-on: ubuntu-latest
+      permissions:
+        pull-requests: read
+      outputs:
+        variants: ${{ steps.filter.outputs.changes }}
+      steps:
+        - name: Checkout code
+          uses: actions/checkout@v4
+        - uses: dorny/paths-filter@v3
+          id: filter
+          with:
+            filters: |
+              php84-debian12:
+                - 'php84-debian12/**'
+                - 'Dockerfile'
+              php84-debian11:
+                - 'php84-debian11/**'
+                - 'Dockerfile'
+              php83-debian12:
+                - 'php83-debian12/**'
+                - 'Dockerfile'
+              php83-debian11:
+                - 'php83-debian11/**'
+                - 'Dockerfile'
+              php82-debian12:
+                - 'php82-debian12/**'
+                - 'Dockerfile'
+              php82-debian11:
+                - 'php82-debian11/**'
+                - 'Dockerfile'
+              php81-debian12:
+                - 'php81-debian12/**'
+                - 'Dockerfile'
+              php81-debian11:
+                - 'php81-debian11/**'
+                - 'Dockerfile'
+
+    build:
+        needs: changes
+        name: Build ${{ matrix.variant }} image
+        runs-on: ubuntu-latest
+        concurrency:
+          group: build-${{ matrix.variant }}
+          cancel-in-progress: true
+        strategy:
+          fail-fast: false
+          matrix:
+            variant: ${{ fromJson(needs.changes.outputs.variants) }}
+        steps:
+            - name: Checkout code
+              uses: actions/checkout@v4
+
+            - name: Set up Docker Buildx
+              uses: docker/setup-buildx-action@v3
+
+            - name: Expose environment variables for caching Docker build
+              uses: actions/github-script@v7
+              with:
+                script: |
+                  core.exportVariable('ACTIONS_RESULTS_URL', process.env['ACTIONS_RESULTS_URL'])
+                  core.exportVariable('ACTIONS_RUNTIME_TOKEN', process.env['ACTIONS_RUNTIME_TOKEN'])
+
+            - name: Get composer cache directory
+              id: composer-cache
+              working-directory: ./tests
+              run: echo "dir=$(composer config cache-files-dir)" >> $GITHUB_OUTPUT
+
+            - name: Cache dependencies
+              uses: actions/cache@v4
+              with:
+                path: ${{ steps.composer-cache.outputs.dir }}
+                key: ${{ runner.os }}-composer-${{ hashFiles('tests/composer.lock') }}
+                restore-keys: ${{ runner.os }}-composer-
+
+            - name: Set up PHP
+              uses: shivammathur/setup-php@v2
+              with:
+                php-version: '8.4'
+
+            - name: Build
+              env:
+                DOCKER_BUILD_EXTRA: >-
+                  --cache-from type=gha,url_v2=${{ env.ACTIONS_RESULTS_URL }},token=${{ env.ACTIONS_RUNTIME_TOKEN }},scope=${{ matrix.variant }}
+                  --cache-to type=gha,url_v2=${{ env.ACTIONS_RESULTS_URL }},token=${{ env.ACTIONS_RUNTIME_TOKEN }},scope=${{ matrix.variant }},mode=max,repository=${{ github.repository }}
+              run: make build-${{ matrix.variant }}
+
+            - name: Test
+              run: make test-setup test-${{ matrix.variant }}
