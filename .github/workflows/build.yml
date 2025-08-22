@@ -88,8 +88,8 @@ jobs:
             - name: Build
               env:
                 DOCKER_BUILD_EXTRA: >-
-                  --cache-from type=gha,url_v2=${{ env.ACTIONS_RESULTS_URL }},token=${{ env.ACTIONS_RUNTIME_TOKEN }}
-                  --cache-to type=gha,url_v2=${{ env.ACTIONS_RESULTS_URL }},token=${{ env.ACTIONS_RUNTIME_TOKEN }},mode=max,repository=${{ github.repository }}
+                  --cache-from type=gha,url_v2=${{ env.ACTIONS_RESULTS_URL }},token=${{ env.ACTIONS_RUNTIME_TOKEN }},scope=${{ matrix.variant }}
+                  --cache-to type=gha,url_v2=${{ env.ACTIONS_RESULTS_URL }},token=${{ env.ACTIONS_RUNTIME_TOKEN }},scope=${{ matrix.variant }},mode=max,repository=${{ github.repository }}
               run: make build-${{ matrix.variant }}
 
             - name: Test
