@@ -45,7 +45,7 @@ jobs:
 
     build:
         needs: changes
-        name: Build ${{ matrix.variant }}
+        name: Build ${{ matrix.variant }} image
         runs-on: ubuntu-latest
         concurrency:
           group: build-${{ matrix.variant }}
