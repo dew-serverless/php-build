@@ -29,6 +29,7 @@ $regions = [
     'eu-west-1',
     'us-east-1',
     'us-west-1',
+    'me-central-1',
 ];
 
 $bucket = getenv('OSS_BUCKET');
