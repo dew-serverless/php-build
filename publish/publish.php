@@ -183,7 +183,7 @@ function getRuntimeFromLayerName(string $layerName): string
 
 step("Process {$runtime} runtime");
 
-$checksum = fileChecksum($runtimePath);
+$crc64 = fileChecksum($runtimePath);
 
 foreach ($regions as $region) {
     $bucketName = $bucket.'-'.$region;
@@ -203,11 +203,11 @@ foreach ($regions as $region) {
     // is about 50MiB, we force garbage collection and free up memory.
     gc_collect_cycles();
 
-    if (layerExists($fc, $runtime, $checksum)) {
+    if (layerExists($fc, $runtime, $crc64)) {
         step("Release layer to region {$region} (exists)");
     } else {
         step("Release layer to region {$region}");
-        layerPublish($fc, $runtime, $bucketName, $objectName, $checksum);
+        layerPublish($fc, $runtime, $bucketName, $objectName, $crc64);
     }
 
     step("Ensure layer is public in {$region}");
