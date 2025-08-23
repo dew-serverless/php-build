@@ -24,6 +24,7 @@ $regions = [
     'cn-qingdao',
     'cn-shanghai',
     'cn-shenzhen',
+    'cn-wulanchabu',
     'cn-zhangjiakou',
     'eu-central-1',
     'eu-west-1',
