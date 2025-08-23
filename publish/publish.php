@@ -91,13 +91,13 @@ function createFcClient(string $key, string $secret, string $region): FcClient
     ]);
 }
 
-function fileExists(OssClient $client, string $bucket, string $object, string $filename): bool
+function fileExists(OssClient $client, string $bucket, string $object, string $filename, string $md5): bool
 {
     try {
         $client->headObject([
             'bucket' => $bucket,
             'key' => $object,
-            'If-Match' => strtoupper(md5_file($filename)),
+            'If-Match' => strtoupper($md5),
         ]);
 
         return true;
@@ -106,12 +106,15 @@ function fileExists(OssClient $client, string $bucket, string $object, string $f
     }
 }
 
-function fileUpload(OssClient $client, string $bucket, string $object, string $filename): void
+function fileUpload(OssClient $client, string $bucket, string $object, string $filename, string $md5): void
 {
     $client->putObject([
         'bucket' => $bucket,
         'key' => $object,
         'body' => file_get_contents($filename),
+        '@headers' => [
+            'Content-MD5' => $md5,
+        ],
     ]);
 }
 
@@ -184,6 +187,8 @@ function getRuntimeFromLayerName(string $layerName): string
 step("Process {$runtime} runtime");
 
 $crc64 = fileChecksum($runtimePath);
+$md5 = md5_file($runtimePath);
+$md5Base64 = base64_encode(md5_file($runtimePath, true));
 
 foreach ($regions as $region) {
     $bucketName = $bucket.'-'.$region;
@@ -191,11 +196,11 @@ foreach ($regions as $region) {
     $oss = createOssClient($accessKeyId, $accessKeySecret, $region);
     $fc = createFcClient($accessKeyId, $accessKeySecret, $region);
 
-    if (fileExists($oss, $bucketName, $objectName, $runtimePath)) {
+    if (fileExists($oss, $bucketName, $objectName, $runtimePath, $md5)) {
         step("Upload layer to region {$region} (exists)");
     } else {
         step("Upload layer to region {$region}");
-        fileUpload($oss, $bucketName, $objectName, $runtimePath);
+        fileUpload($oss, $bucketName, $objectName, $runtimePath, $md5Base64);
     }
 
     // Instead of partially uploading the layer package one step at a time,
