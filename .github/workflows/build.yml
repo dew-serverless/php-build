@@ -54,6 +54,9 @@ jobs:
           fail-fast: false
           matrix:
             variant: ${{ fromJson(needs.changes.outputs.variants) }}
+        permissions:
+          contents: read
+          packages: write
         steps:
             - name: Checkout code
               uses: actions/checkout@v4
@@ -94,3 +97,15 @@ jobs:
 
             - name: Test
               run: make test-setup test-${{ matrix.variant }}
+
+            - name: Login to GitHub Container Registry
+              if: github.ref == 'refs/heads/main'
+              uses: docker/login-action@v3
+              with:
+                registry: ghcr.io
+                username: ${{ github.actor }}
+                password: ${{ secrets.GITHUB_TOKEN }}
+
+            - name: Push to GitHub Container Registry
+              if: github.ref == 'refs/heads/main'
+              run: make push-${{ matrix.variant }}
