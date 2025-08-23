@@ -46,6 +46,7 @@ jobs:
     name: Release ${{ matrix.variant }}
     needs: changes
     runs-on: ubuntu-latest
+    if: needs.changes.outputs.variants != '[]'
     permissions:
       contents: write
     strategy:

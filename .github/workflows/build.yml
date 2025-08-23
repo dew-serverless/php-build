@@ -47,6 +47,7 @@ jobs:
         needs: changes
         name: Build ${{ matrix.variant }} image
         runs-on: ubuntu-latest
+        if: needs.changes.outputs.variants != '[]'
         concurrency:
           group: build-${{ matrix.variant }}
           cancel-in-progress: true
