@@ -173,6 +173,7 @@ function layerEnsureIsPublic(FcClient $client, string $runtime): void
 function getRuntimeFromLayerName(string $layerName): string
 {
     return match (true) {
+        str_ends_with($layerName, '-debian12') => 'custom.debian12',
         str_ends_with($layerName, '-debian11') => 'custom.debian11',
         str_ends_with($layerName, '-debian10') => 'custom.debian10',
         default => 'custom',
