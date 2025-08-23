@@ -36,9 +36,10 @@ $bucket = getenv('OSS_BUCKET');
 $accessKeyId = getenv('ACS_ACCESS_KEY_ID');
 $accessKeySecret = getenv('ACS_ACCESS_KEY_SECRET');
 
-$runtime = $argv[1] ?? null;
-$runtimePath = __DIR__.'/../export/'.$runtime.'.zip';
-$objectName = $runtime.'.zip';
+$variant = $argv[1] ?? '';
+$release = $argv[2] ?? '';
+$filename = __DIR__.'/../export/'.$variant.'.zip';
+$objectName = sprintf('%s-%s.zip', $variant, normalizeRelease($release));
 
 if (! $bucket) {
     fatal('Expect the base name of OSS bucket');
@@ -48,12 +49,16 @@ if (! ($accessKeyId && $accessKeySecret)) {
     fatal('Expect ACS credentials');
 }
 
-if (! $runtime) {
-    fatal('Expect runtime name, e.g. php84-debian11');
+if ($variant === '') {
+    fatal('Expect a variant name, e.g. php84-debian11');
 }
 
-if (! file_exists($runtimePath)) {
-    fatal('The runtime layer package is missing');
+if ($release === '') {
+    fatal('Expect a release version, e.g. v2025.1');
+}
+
+if (! file_exists($filename)) {
+    fatal('The runtime package is missing');
 }
 
 function fatal(string $message): void
@@ -66,6 +71,20 @@ function fatal(string $message): void
 function step(string $message): void
 {
     printf('[-] %s'.PHP_EOL, $message);
+}
+
+function normalizeRelease(string $release): string
+{
+    // Ensure the release has the leading 'v'
+    $normalized = str_starts_with($release, 'v') ? $release : 'v'.$release;
+
+    // Then, we get rid of the leading 'v'
+    $normalized = substr($normalized, 1);
+
+    // Replace the dot with an underscore
+    $normalized = str_replace('.', '_', $normalized);
+
+    return $normalized;
 }
 
 function createOssClient(string $key, string $secret, string $region): OssClient
@@ -125,10 +144,10 @@ function fileChecksum(string $filename): int
     return Crc64::make($contents);
 }
 
-function layerExists(FcClient $client, string $runtime, string $checksum): bool
+function layerExists(FcClient $client, string $variant, string $checksum): bool
 {
     $data = $client->listLayers([
-        'prefix' => $runtime,
+        'prefix' => $variant,
         'limit' => 1,
         'official' => 'false', // A type of string by API definition
     ])->getDecodedData();
@@ -144,10 +163,10 @@ function layerExists(FcClient $client, string $runtime, string $checksum): bool
     return true;
 }
 
-function layerPublish(FcClient $client, string $runtime, string $bucket, string $object, string $checksum): void
+function layerPublish(FcClient $client, string $variant, string $bucket, string $object, string $checksum): void
 {
     $client->createLayerVersion([
-        'layerName' => $runtime,
+        'layerName' => $variant,
         'body' => [
             'code' => [
                 'ossBucketName' => $bucket,
@@ -155,17 +174,17 @@ function layerPublish(FcClient $client, string $runtime, string $bucket, string 
                 'checksum' => $checksum,
             ],
             'compatibleRuntime' => [
-                getRuntimeFromLayerName($runtime),
+                getRuntimeFromLayerName($variant),
             ],
             'license' => 'MIT',
         ],
     ]);
 }
 
-function layerEnsureIsPublic(FcClient $client, string $runtime): void
+function layerEnsureIsPublic(FcClient $client, string $variant): void
 {
     $client->putLayerACL([
-        'layerName' => $runtime,
+        'layerName' => $variant,
 
         // Allowed values:
         // '0': private (default)
@@ -184,11 +203,11 @@ function getRuntimeFromLayerName(string $layerName): string
     };
 }
 
-step("Process {$runtime} runtime");
+step("Process {$variant} runtime");
 
-$crc64 = fileChecksum($runtimePath);
-$md5 = md5_file($runtimePath);
-$md5Base64 = base64_encode(md5_file($runtimePath, true));
+$crc64 = fileChecksum($filename);
+$md5 = md5_file($filename);
+$md5Base64 = base64_encode(md5_file($filename, true));
 
 foreach ($regions as $region) {
     $bucketName = $bucket.'-'.$region;
@@ -196,11 +215,11 @@ foreach ($regions as $region) {
     $oss = createOssClient($accessKeyId, $accessKeySecret, $region);
     $fc = createFcClient($accessKeyId, $accessKeySecret, $region);
 
-    if (fileExists($oss, $bucketName, $objectName, $runtimePath, $md5)) {
+    if (fileExists($oss, $bucketName, $objectName, $filename, $md5)) {
         step("Upload layer to region {$region} (exists)");
     } else {
         step("Upload layer to region {$region}");
-        fileUpload($oss, $bucketName, $objectName, $runtimePath, $md5Base64);
+        fileUpload($oss, $bucketName, $objectName, $filename, $md5Base64);
     }
 
     // Instead of partially uploading the layer package one step at a time,
@@ -208,15 +227,15 @@ foreach ($regions as $region) {
     // is about 50MiB, we force garbage collection and free up memory.
     gc_collect_cycles();
 
-    if (layerExists($fc, $runtime, $crc64)) {
+    if (layerExists($fc, $variant, $crc64)) {
         step("Release layer to region {$region} (exists)");
     } else {
         step("Release layer to region {$region}");
-        layerPublish($fc, $runtime, $bucketName, $objectName, $crc64);
+        layerPublish($fc, $variant, $bucketName, $objectName, $crc64);
     }
 
     step("Ensure layer is public in {$region}");
-    layerEnsureIsPublic($fc, $runtime);
+    layerEnsureIsPublic($fc, $variant);
 }
 
 step('Publish is done');

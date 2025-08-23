@@ -34,7 +34,7 @@ export/%:
 export: $(addprefix export/,$(VARIANTS))
 
 publish-%: export/%
-	php publish/publish.php $*
+	php publish/publish.php $* $(RELEASE)
 
 publish: $(addprefix publish-,$(VARIANTS))
 
