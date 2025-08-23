@@ -141,7 +141,7 @@ function layerExists(FcClient $client, string $runtime, string $checksum): bool
     return true;
 }
 
-function layerPublish(FcClient $client, string $runtime, string $bucket, string $object): void
+function layerPublish(FcClient $client, string $runtime, string $bucket, string $object, string $checksum): void
 {
     $client->createLayerVersion([
         'layerName' => $runtime,
@@ -149,6 +149,7 @@ function layerPublish(FcClient $client, string $runtime, string $bucket, string 
             'code' => [
                 'ossBucketName' => $bucket,
                 'ossObjectName' => $object,
+                'checksum' => $checksum,
             ],
             'compatibleRuntime' => [
                 getRuntimeFromLayerName($runtime),
@@ -206,7 +207,7 @@ foreach ($regions as $region) {
         step("Release layer to region {$region} (exists)");
     } else {
         step("Release layer to region {$region}");
-        layerPublish($fc, $runtime, $bucketName, $objectName);
+        layerPublish($fc, $runtime, $bucketName, $objectName, $checksum);
     }
 
     step("Ensure layer is public in {$region}");
