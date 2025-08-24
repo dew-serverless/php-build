@@ -140,7 +140,7 @@ function fileUpload(OssClient $client, string $bucket, string $object, string $f
     ]);
 }
 
-function fileChecksum(string $filename): int
+function fileChecksum(string $filename): string
 {
     $contents = file_get_contents($filename);
 
