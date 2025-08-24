@@ -97,6 +97,7 @@ function createOssClient(string $key, string $secret, string $region): OssClient
             'secret' => $secret,
         ],
         'region' => $region,
+        'endpoint' => sprintf('oss-%s.aliyuncs.com', $region),
     ]);
 }
 
