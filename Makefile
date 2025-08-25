@@ -21,7 +21,10 @@ test-setup:
 
 test-%:
 	cd tests; \
-	DEW_PHP_VERSION="$*" composer run test
+	DEW_PHP_VERSION="$*" \
+	DOCKER_REGISTRY="$(DOCKER_REGISTRY)" \
+	DOCKER_IMAGE="$(DOCKER_IMAGE)" \
+	composer run test
 
 test: test-setup $(addprefix test-,$(VARIANTS))
 

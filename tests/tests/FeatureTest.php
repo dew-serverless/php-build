@@ -31,13 +31,24 @@ final class FeatureTest extends TestCase
         $exit = null;
 
         $version = $_ENV['DEW_PHP_VERSION'];
+        $registry = $_ENV['DOCKER_REGISTRY'];
+        $image = $_ENV['DOCKER_IMAGE'];
 
         if ($version === '') {
             $this->markTestSkipped('The environment variable "DEW_PHP_VERSION" is missing.');
         }
 
+        if ($registry === '') {
+            $this->markTestSkipped('The environment variable "DOCKER_REGISTRY" is missing.');
+        }
+
+        if ($image === '') {
+            $this->markTestSkipped('The environment variable "DOCKER_IMAGE" is missing.');
+        }
+
+        $tag = str_replace('php', '', $version);
         $cmd = preg_replace(
-            '/^php /', "docker run --rm dew/{$version} ", $command
+            '/^php /', sprintf('docker run --rm %s/%s:%s ', $registry, $image, $tag), $command
         );
 
         exec($cmd, $output, $exit);

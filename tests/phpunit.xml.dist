@@ -18,5 +18,7 @@
     </testsuites>
     <php>
         <env name="DEW_PHP_VERSION" value=""/>
+        <env name="DOCKER_REGISTRY" value="ghcr.io"/>
+        <env name="DOCKER_IMAGE" value="dew-serverless/php"/>
     </php>
 </phpunit>
