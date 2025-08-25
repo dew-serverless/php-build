@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "52f2a9d391668a15e3d3df43f254724b",
+    "content-hash": "ac3e80ea54ba793f9a6b28a59083dda0",
     "packages": [
         {
             "name": "clue/stream-filter",
@@ -74,16 +74,16 @@
         },
         {
             "name": "dew-serverless/acs-sdk-php",
-            "version": "v0.7.0+20241130",
+            "version": "v0.9.0+20250818",
             "source": {
                 "type": "git",
                 "url": "https://github.com/dew-serverless/acs-sdk-php.git",
-                "reference": "3572e254b6b6f1021ed8c060df4262bad288393b"
+                "reference": "6f27f9a531fe191312072df483c88315faeb3a59"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/dew-serverless/acs-sdk-php/zipball/3572e254b6b6f1021ed8c060df4262bad288393b",
-                "reference": "3572e254b6b6f1021ed8c060df4262bad288393b",
+                "url": "https://api.github.com/repos/dew-serverless/acs-sdk-php/zipball/6f27f9a531fe191312072df483c88315faeb3a59",
+                "reference": "6f27f9a531fe191312072df483c88315faeb3a59",
                 "shasum": ""
             },
             "require": {
@@ -130,9 +130,9 @@
             "description": "Unofficial Alibaba Cloud PHP SDK.",
             "support": {
                 "issues": "https://github.com/dew-serverless/acs-sdk-php/issues",
-                "source": "https://github.com/dew-serverless/acs-sdk-php/tree/v0.7.0+20241130"
+                "source": "https://github.com/dew-serverless/acs-sdk-php/tree/v0.9.0+20250818"
             },
-            "time": "2024-11-30T13:52:28+00:00"
+            "time": "2025-08-18T04:02:07+00:00"
         },
         {
             "name": "guzzlehttp/guzzle",

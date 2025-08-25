@@ -1,6 +1,6 @@
 {
     "require": {
-        "dew-serverless/acs-sdk-php": "^0.7.0",
+        "dew-serverless/acs-sdk-php": "^0.9.0",
         "php-http/guzzle7-adapter": "^1.1",
         "guzzlehttp/guzzle": "^7.0"
     },

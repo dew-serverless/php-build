@@ -156,7 +156,7 @@ final class Crc64
         0xD80C07CD << 32 | 0x676F8394, 0x9AFCE626 << 32 | 0xCE85B507,
     ];
 
-    public static function make(string $value): int
+    public static function make(string $value): string
     {
         // Final XOR: 0xFFFFFFFFFFFFFFFF
         $finalXor = (1 << 64) - 1;
@@ -177,7 +177,7 @@ final class Crc64
 
         $checksum = static::reflect64($checksum);
 
-        return $checksum ^ $finalXor;
+        return sprintf('%u', $checksum ^ $finalXor);
     }
 
     private static function reflect8(int $value): int

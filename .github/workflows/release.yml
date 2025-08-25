@@ -1,0 +1,107 @@
+name: Release
+
+on:
+  release:
+    types: [published]
+
+jobs:
+  changes:
+    name: Detect changes since last release
+    runs-on: ubuntu-latest
+    outputs:
+      variants: ${{ steps.filter.outputs.changes }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Retrieve the previous release version
+        id: previous_release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          # Attempt to get the tag of the second-to-last release
+          PREVIOUS_TAG=$(gh release list --limit 2 --json tagName | jq -r '. | select(length > 1) | .[1].tagName')
+
+          if [[ -z "$PREVIOUS_TAG" ]]; then
+            echo "No previous release found. Falling back to the first commit."
+            REF=$(git rev-list --max-parents=0 HEAD)
+          else
+            echo "Found previous release: $PREVIOUS_TAG"
+            REF=$PREVIOUS_TAG
+          fi
+
+          echo "The reference point is: $REF"
+          echo "ref=$REF" >> $GITHUB_OUTPUT
+
+      - name: Detect changed variants
+        uses: dorny/paths-filter@v3
+        id: filter
+        with:
+          filters: .github/filters.yml
+          base: ${{ steps.previous_release.outputs.ref }}
+
+  release:
+    name: Release ${{ matrix.variant }}
+    needs: changes
+    runs-on: ubuntu-latest
+    if: needs.changes.outputs.variants != '[]'
+    permissions:
+      contents: write
+    strategy:
+      fail-fast: false
+      matrix:
+        variant: ${{ fromJson(needs.changes.outputs.variants) }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.4'
+
+      - name: Get composer cache directory
+        id: composer-cache
+        working-directory: ./publish
+        run: echo "dir=$(composer config cache-files-dir)" >> $GITHUB_OUTPUT
+
+      - name: Cache dependencies
+        uses: actions/cache@v4
+        with:
+          path: ${{ steps.composer-cache.outputs.dir }}
+          key: ${{ runner.os }}-composer-${{ hashFiles('publish/composer.lock') }}
+          restore-keys: ${{ runner.os }}-composer-
+
+      - name: Install dependencies
+        working-directory: ./publish
+        run: composer install --prefer-dist
+
+      - name: Pull image from registry
+        run: |
+          TAG=$(echo "${{ matrix.variant }}" | sed 's/^php//')
+          docker pull ghcr.io/${{ github.repository_owner }}/php:$TAG
+
+      - name: Export artifact
+        env:
+          DOCKER_REGISTRY: ghcr.io
+          DOCKER_IMAGE: ${{ github.repository_owner }}/php
+        run: make export/${{ matrix.variant }}
+
+      - name: Upload release asset
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release upload ${{ github.event.release.tag_name }} \
+            ./export/${{ matrix.variant }}.zip \
+            --clobber
+
+      - name: Publish to Alibaba Cloud
+        env:
+          OSS_BUCKET: ${{ secrets.OSS_BUCKET }}
+          ACS_ACCESS_KEY_ID: ${{ secrets.ACS_ACCESS_KEY_ID }}
+          ACS_ACCESS_KEY_SECRET: ${{ secrets.ACS_ACCESS_KEY_SECRET }}
+        run: |
+          RELEASE="${{ github.event.release.tag_name }}" \
+          make publish-${{ matrix.variant }}
