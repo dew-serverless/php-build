@@ -10,7 +10,7 @@ build-%:
 	BUILD_ARGS="$(shell awk '/^[a-zA-Z0-9]+ *=/ { printf "--build-arg %s_VERSION=%s ", toupper($$1), $$3 }' "$*/dependencies.ini" | xargs)" && \
 	docker buildx build $$BUILD_ARGS $(DOCKER_BUILD_EXTRA) \
 		--load \
-		-t $(DOCKER_BUILD_EXTRA)/$(DOCKER_IMAGE):$(subst php,,$*) \
+		-t $(DOCKER_REGISTRY)/$(DOCKER_IMAGE):$(subst php,,$*) \
 		.
 
 build: $(addprefix build-,$(VARIANTS))
@@ -21,7 +21,10 @@ test-setup:
 
 test-%:
 	cd tests; \
-	DEW_PHP_VERSION="$*" composer run test
+	DEW_PHP_VERSION="$*" \
+	DOCKER_REGISTRY="$(DOCKER_REGISTRY)" \
+	DOCKER_IMAGE="$(DOCKER_IMAGE)" \
+	composer run test
 
 test: test-setup $(addprefix test-,$(VARIANTS))
 
