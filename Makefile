@@ -10,7 +10,7 @@ build-%:
 	BUILD_ARGS="$(shell awk '/^[a-zA-Z0-9]+ *=/ { printf "--build-arg %s_VERSION=%s ", toupper($$1), $$3 }' "$*/dependencies.ini" | xargs)" && \
 	docker buildx build $$BUILD_ARGS $(DOCKER_BUILD_EXTRA) \
 		--load \
-		-t $(DOCKER_BUILD_EXTRA)/$(DOCKER_IMAGE):$(subst php,,$*) \
+		-t $(DOCKER_REGISTRY)/$(DOCKER_IMAGE):$(subst php,,$*) \
 		.
 
 build: $(addprefix build-,$(VARIANTS))
