@@ -140,6 +140,18 @@ function fileUpload(OssClient $client, string $bucket, string $object, string $f
     ]);
 }
 
+function fileDelete(OssClient $client, string $bucket, string $object): void
+{
+    try {
+        $client->deleteObject([
+            'bucket' => $bucket,
+            'key' => $object,
+        ]);
+    } catch (Throwable) {
+        // Ignore any error
+    }
+}
+
 function fileChecksum(string $filename): string
 {
     $contents = file_get_contents($filename);
@@ -239,6 +251,9 @@ foreach ($regions as $region) {
 
     step("Ensure layer is public in {$region}");
     layerEnsureIsPublic($fc, $variant);
+
+    step('Clean up the uploaded package after publishing');
+    fileDelete($oss, $bucketName, $objectName);
 }
 
 step('Publish is done');
